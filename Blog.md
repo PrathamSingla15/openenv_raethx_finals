@@ -1,6 +1,6 @@
-# TradeBench: An ultra long-horizon training environment
+# If AI models are so smart, why aren't they rich?
 
-*A long-horizon trading environment, and what we learned from training an agent on it without touching the weights.*
+*TradeBench: a trading RL environment to test and improve a model's ability for capital allocation under incomplete and noisy information.*
 
 **Submission for the Meta PyTorch OpenEnv Hackathon (India 2026), Theme 2: (Super) Long-Horizon Planning and Instruction Following.**
 
@@ -18,7 +18,7 @@ And yet, for something so central, it still runs on a fragile foundation: human 
 
 What was once left to individual judgement can become an optimizable system. A new hill to climb.
 
-That is the bet TradeBench makes. We turn long-horizon equities trading into an environment where execution discipline is a measurable, decomposable, gradient-friendly target — not a soft skill anyone has to grade by feel. The reward is bounded in [0, 1], decomposed across seven trader-recognizable components, and gated by a binary compliance check. The data is real OHLCV behind a four-layer anti-memorization stack so the agent has to derive strategy from what it sees, not retrieve it from training memory. The episode is 119 bars long, ~50-200 tool calls deep, and emits a dense per-bar reward designed for any optimizer that can use a scalar signal: prompt evolution, GRPO, PPO, or anything that comes next.
+That is the bet TradeBench makes. We turn long-horizon equities trading into an environment where execution discipline is a measurable, decomposable, gradient-friendly target, not a soft skill anyone has to grade by feel. The reward is bounded in [0, 1], decomposed across seven trader-recognizable components, and gated by a binary compliance check. The data is real OHLCV behind a four-layer anti-memorization stack so the agent has to derive strategy from what it sees, not retrieve it from training memory. The episode is 119 bars long, ~50-200 tool calls deep, and emits a dense per-bar reward designed for any optimizer that can use a scalar signal: prompt evolution, GRPO, PPO, or anything that comes next.
 
 The post is self-contained. Sections 1-3 give you the result and the env. Sections 4-6 explain the training mechanism and why we picked it over GRPO. Section 7 is the full results, both Qwen3-32B and GLM-5.1, every figure embedded inline. Sections 8-10 cover what reflection actually taught the agent, what this submission proves and does not prove, and where it goes next.
 
@@ -42,7 +42,7 @@ The claim is narrower than "prompts matter." Frontier LLMs already carry the pla
 
 Frontier LLMs have measurable failure modes on long-horizon decision tasks. They reason well about a single trade in isolation, but not across hundreds of sequential decisions where past actions reshape the future state distribution. The skill that breaks down is pacing: when to act, when to abstain, how to size against what you hold, how to avoid drifting into an unintended regime.
 
-Finance is the cleanest place to measure this. KellyBench (2026) ran every major frontier model on a single Premier League season, asking each to manage GBP 100K across match betting markets. Every model lost money. The best run, Claude Opus 4.6, finished at -11% ROI. Grok 3 went to ruin entirely. None had a knowledge problem; they had an execution problem stretched across a few hundred sequential decisions, enough to flip every one negative. The gap between knowing and acting, in this regime, is a stated number rather than an intuition.
+Finance is the cleanest place to measure this. The reward function has no taste, no narrative, no goalpost drift: a portfolio either compounded or it did not, and the path that got it there is on the ledger. Sequential mistakes show up as sequential dollars lost. There is nowhere to hide. That is exactly the property a long-horizon RL environment needs and the property most agentic benchmarks lack.
 
 We worked through the cost arithmetic for the textbook fix (RL via GRPO/PPO) and it did not fit the budget. A single 119-bar test episode took 35 to 45 minutes of wall-clock through GLM-5.1 on Together, and about 22 minutes through Qwen3-32B on Groq, with hundreds of tool calls per episode at a few seconds each. Multiplying that across the rollout count an LLM-as-policy RL run needs got us to weeks, not the 36 hours a hackathon allows. Even with concurrency, the per-token economics cut the experiment off before it could start. Section 5 has the full numeric comparison.
 
@@ -147,7 +147,7 @@ We treated GRPO as the default and stress-tested it against the budget and env. 
 
 Hackathon window: 36 hr.
 
-For external calibration: KellyBench (Grady et al., 2026) reports a single GPT-5.4 seed of their evaluation costing approximately **$2,012** of inference. They explicitly note in their limitations that iterative or multi-agent harnesses on top of frontier models are "out of reach to most individuals or small groups." Our entire 5-iter Qwen plus 3-iter GLM reflection loop ran for **~$3** of OpenRouter spend. The cheapness is the point: it makes prompt evolution and downstream RL-warmstart actually budgetable.
+For internal calibration: a single rollout against either model burns about 40-60 minutes of wall-clock and a few cents of inference. Our entire 5-iter Qwen plus 3-iter GLM reflection loop ran for about **$3** of OpenRouter spend, end to end. That cheapness is the point. It makes prompt evolution, multi-seed cross-validation, and downstream RL warm-start actually budgetable from a hackathon laptop, instead of a cluster reservation.
 
 **2. The reward function was being hardened during the event.** Mid-hackathon we caught a saturation bug: the old `r_sharpe_bonus` term contributed close to 100% of total reward, so the baseline agent scored 0.9997 while losing 12 percentage points to B&H. Catching it required inspecting per-component contributions, redesigning the reward into the [0, 1] convex composite that ships now, and starting over. GRPO on a 32B base model against a still-stabilizing reward would have burned the remaining 30 hours on ablations rather than policy improvement. Reflection tolerates reward refinement: each iteration uses the current reward verbatim, and the trajectory the reflector reads reflects the latest signal.
 
@@ -375,7 +375,7 @@ The top five rows are the actual learning signal. The dominant failure across bo
 
 ### Sophistication rubric, derived from action mix
 
-KellyBench grades model strategies against a 44-point human-expert rubric of process quality. We do not have expert quants on hand for a hackathon weekend. As a smaller-budget proxy, we score every rollout against a five-criterion rubric whose criteria are objectively verifiable from action counts:
+A score number alone tells you whether the agent did better, not whether it did better *for the right reasons*. To separate luck from learned discipline, we score every rollout against a five-criterion rubric whose criteria are objectively verifiable from action counts:
 
 | Criterion | Threshold | Qwen base | Qwen iter 5 | GLM base | GLM iter 3 |
 |---|---|---:|---:|---:|---:|
@@ -396,7 +396,7 @@ This is a single-team hackathon submission, built and validated over a 36-hour w
 
 What this submission proves: (a) on a non-stationary, anti-leak-defended trading task, prompt-only optimization via a stronger reflector lifts a frozen 32B agent from 0.6155 to 0.6584 on a bounded composite reward, monotonically across 5 iterations; (b) the same harness improves a different base model (GLM-5.1) from a different starting pathology toward the same converged operating point; (c) the bounded-component reward + multiplicative compliance gate held across 10 rollouts with zero rules-clause hits, zero forbidden-global hits, and zero compliance-gate zeros, validating the reward design under adversarial pressure from two different base models.
 
-What this submission does not prove: (a) reflection generalizes across regimes; we trained and evaluated on one source window. (b) the iter-5 prompt is robust to seed; we ran one trajectory. (c) the trained agent beats equal-weight buy-and-hold (it does not — it still trails by ~5 log-points, down from ~13 at baseline). (d) reflection scales arbitrarily; the 1.10× length cap is the entire game and a longer run could regress. (e) the reflector itself is uncontaminated by training-time market knowledge; aliasing protects the agent, not the reflector that reads its prompt.
+What this submission does not prove: (a) reflection generalizes across regimes; we trained and evaluated on one source window. (b) the iter-5 prompt is robust to seed; we ran one trajectory. (c) the trained agent beats equal-weight buy-and-hold (it does not, it still trails by ~5 log-points, down from ~13 at baseline). (d) reflection scales arbitrarily; the 1.10x length cap is the entire game and a longer run could regress. (e) the reflector itself is uncontaminated by training-time market knowledge; aliasing protects the agent, not the reflector that reads its prompt.
 
 The main caveat is sample size at the episode level. We evaluated on a single 119-bar window with one regime. Multi-window cross-validation with held-out episodes from different market conditions is what would let us claim generalization rather than fit. That's the next thing we'd run.
 
@@ -410,10 +410,10 @@ Finally, the train phase is a 1-shot research write-up rather than multi-bar int
 
 ### Open problems we want to push on
 
-- **Reflector quality scaling.** How does reflection performance scale with reflector capability? Sonnet 4.6 vs Opus 4.6 vs Opus 4.7 against a fixed agent — does a weaker reflector produce diagnoses too vague to drive sharp edits, or does the 1.10× length cap dominate the variance?
+- **Reflector quality scaling.** How does reflection performance scale with reflector capability? Sonnet 4.6 vs Opus 4.6 vs Opus 4.7 against a fixed agent: does a weaker reflector produce diagnoses too vague to drive sharp edits, or does the 1.10x length cap dominate the variance?
 - **Reflection-as-warm-start.** Can the iter-5 prompt be used as initialization for actual GRPO/PPO, collapsing the cold-start exploration phase? Reflection as inductive prior, RL as long-horizon refinement.
 - **Multi-window generalization.** Do reflection-discovered prompt edits transfer across regimes drawn from different source windows, or are they fit-on-one-tape? This is the cleanest test of whether reflection learned a strategy or memorized one.
-- **Long-context coherence in reflective loops.** At 200+ bars and 1000+ tool calls per rollout, where does context-management failure dominate over reasoning failure? KellyBench reports 500-1000 tool calls per matchday-season; we run shorter, but the scaling law for reflection at long context is open.
+- **Long-context coherence in reflective loops.** At 200+ bars and 1000+ tool calls per rollout, where does context-management failure dominate over reasoning failure? Today's run is around 50-200 tool calls; the scaling law for reflection at long context is open.
 - **Reflector contamination audit.** The aliasing stack protects the agent. The reflector that reads the prompt is a frontier model with a knowledge cutoff inside the source-window pool. We have no transcript audit demonstrating the reflector's edits do not encode training-time market priors. That is the hardest open question.
 
 ---
@@ -428,4 +428,4 @@ Every iteration's prompt, trajectory, and raw reflector response is committed un
 
 To clone and try it: the env and training code are at https://github.com/PrathamSingla15/openenv_raethx_finals, and a hosted demo lives at https://huggingface.co/spaces/yobro4619/tradebench. TradeBench is OpenEnv-compliant, so you can drop it into any TRL training loop and run reflection, GRPO, or your own scheme on top.
 
-If this works at scale, the payoff is bigger than a better trading agent. Long-horizon decision-making under uncertainty is the bottleneck for deploying LLMs in any economic system that runs on sequential commitments — capital allocation, research planning, infrastructure operations. Done better, the same shape of environment turns scarce model competence into more autonomous progress. We picked finance because feedback there is fast and unforgiving. The shape of the answer should generalize.
+If this works at scale, the payoff is bigger than a better trading agent. Long-horizon decision-making under uncertainty is the bottleneck for deploying LLMs in any economic system that runs on sequential commitments: capital allocation, research planning, infrastructure operations. Done better, the same shape of environment turns scarce model competence into more autonomous progress. We picked finance because feedback there is fast and unforgiving. The shape of the answer should generalize.
