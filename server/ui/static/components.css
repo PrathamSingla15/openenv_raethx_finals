@@ -28,7 +28,7 @@ footer { display: none !important; }
 
 /* ── Page header ────────────────────────────────────────────── */
 .tb-header {
-    padding: var(--space-7) var(--space-3) var(--space-5);
+    padding: var(--space-6) var(--space-3) var(--space-5);
     border-bottom: 1px solid var(--rule);
     margin-bottom: var(--space-5);
     position: relative;
@@ -44,35 +44,400 @@ footer { display: none !important; }
     pointer-events: none;
     mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 80%);
 }
+.tb-header-rule {
+    width: 96px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin-bottom: var(--space-4);
+}
+.tb-header-meta {
+    font-family: var(--type-mono);
+    font-size: 0.74em;
+    color: var(--ink-mute);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+.tb-header-tag { color: var(--accent); }
+.tb-header-tag:nth-child(3),
+.tb-header-tag:nth-child(5),
+.tb-header-tag:nth-child(7) { color: var(--ink-mute); }
+.tb-header-dot { color: var(--ink-faint); }
+.tb-header-title,
 .tb-header h1 {
     font-family: var(--type-display);
     font-weight: 600;
-    font-size: clamp(2.6em, 5vw, 4.2em);
-    line-height: 1.0;
+    font-size: clamp(2.6em, 5vw, 4.4em);
+    line-height: 0.96;
     letter-spacing: -0.02em;
     color: var(--ink);
     margin: 0;
     font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
 }
+.tb-header-title .tb-accent,
 .tb-header h1 .tb-accent {
     color: var(--accent);
     font-style: italic;
 }
 .tb-header .tb-lead {
     font-family: var(--type-body);
-    font-size: 1.05em;
+    font-size: 1.06em;
     color: var(--ink-mute);
     margin: var(--space-3) 0 0;
-    max-width: 62ch;
+    max-width: 64ch;
+    line-height: 1.6;
+}
+.tb-header .tb-lead code {
+    color: var(--accent-hi);
+    background: rgba(34, 211, 238, 0.10) !important;
+    border-color: var(--accent-lo) !important;
+}
+
+/* ── Hero (Trajectory tab) ──────────────────────────────────── */
+.tb-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+    margin: var(--space-5) 0 var(--space-4);
+}
+.tb-hero-stack { min-width: 0; }
+.tb-hero-title {
+    font-family: var(--type-display);
+    font-weight: 500;
+    font-size: clamp(1.8em, 3.2vw, 2.6em);
+    line-height: 1.18;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--space-3);
+    font-variation-settings: "opsz" 120, "SOFT" 0, "WONK" 1;
+}
+.tb-hero-title .tb-accent {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 600;
+}
+.tb-hero-lead {
+    font-family: var(--type-body);
+    font-size: 1.0em;
+    color: var(--ink-mute);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 64ch;
+}
+.tb-hero-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+.tb-statcard {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+.tb-statcard::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-lo));
+}
+.tb-statcard-eyebrow {
+    font-family: var(--type-mono);
+    font-size: 0.72em;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--space-3);
+}
+.tb-statcard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--rule);
+}
+.tb-statcard-row:last-of-type { border-bottom: none; }
+.tb-statcard-key {
+    font-family: var(--type-mono);
+    font-size: 0.82em;
+    color: var(--ink-mute);
+}
+.tb-statcard-arrow {
+    font-family: var(--type-mono);
+    font-feature-settings: "tnum";
+    font-size: 0.92em;
+    color: var(--ink);
+}
+.tb-statcard-arrow strong {
+    color: var(--accent-hi);
+    font-weight: 500;
+}
+.tb-statcard-foot {
+    font-family: var(--type-mono);
+    font-size: 0.7em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: var(--space-3);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--rule);
+}
+
+/* ── Reward formula block ───────────────────────────────────── */
+.tb-formula {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: var(--space-4);
+    margin: var(--space-4) 0 var(--space-5);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+.tb-formula::before {
+    content: "rewards/composite.py";
+    position: absolute;
+    top: 0; right: var(--space-4);
+    background: var(--bg);
+    color: var(--accent);
+    font-family: var(--type-mono);
+    font-size: 0.7em;
+    letter-spacing: 0.1em;
+    padding: 2px var(--space-2);
+    border: 1px solid var(--rule);
+    border-top: none;
+    border-radius: 0 0 var(--r-sm) var(--r-sm);
+    text-transform: uppercase;
+}
+.tb-formula pre {
+    background: transparent !important;
+    border: none !important;
+    color: var(--ink) !important;
+    font-family: var(--type-mono);
+    font-size: 0.84em;
+    line-height: 1.7;
+    margin: 0;
+    padding: var(--space-3) 0 0 !important;
+    overflow-x: auto;
+}
+
+/* ── Three-up card grid (design notes / observations) ───────── */
+.tb-three-up {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-3);
+    margin: var(--space-3) 0 var(--space-5);
+}
+.tb-card {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: var(--space-4);
+    transition: transform var(--dur-fast) var(--ease-out),
+                border-color var(--dur-fast) var(--ease-out);
+    position: relative;
+}
+.tb-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-lo);
+}
+.tb-card-num {
+    font-family: var(--type-mono);
+    font-size: 0.74em;
+    color: var(--accent);
+    letter-spacing: 0.16em;
+    margin-bottom: var(--space-2);
+}
+.tb-card-title {
+    font-family: var(--type-display);
+    font-weight: 500;
+    font-size: 1.08em;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: var(--space-2);
+    font-variation-settings: "opsz" 72;
+}
+.tb-card-body {
+    font-family: var(--type-body);
+    font-size: 0.92em;
+    color: var(--ink-mute);
+    line-height: 1.6;
+}
+.tb-card-body code {
+    color: var(--accent-hi);
+}
+
+/* ── Layer stack (6 defense layers) ─────────────────────────── */
+.tb-layer-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-3);
+    margin: var(--space-4) 0 var(--space-5);
+}
+.tb-layer {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: var(--space-4);
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    transition: border-color var(--dur-fast) var(--ease-out);
+}
+.tb-layer:hover { border-color: var(--accent-lo); }
+.tb-layer-num {
+    font-family: var(--type-display);
+    font-feature-settings: "tnum";
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: right;
+}
+.tb-layer-content { min-width: 0; }
+.tb-layer-title {
+    font-family: var(--type-body);
+    font-weight: 500;
+    font-size: 0.98em;
+    color: var(--ink);
+    margin-bottom: var(--space-1);
+}
+.tb-layer-body {
+    font-family: var(--type-body);
+    font-size: 0.9em;
+    color: var(--ink-mute);
     line-height: 1.55;
 }
-.tb-header .tb-meta {
+.tb-layer-body code { color: var(--accent-hi); }
+
+/* ── Editorial blockquote (Opus diagnosis) ──────────────────── */
+.tb-quote {
+    font-family: var(--type-display);
+    font-style: italic;
+    font-size: 1.06em;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg-elev-1);
+    border-left: 3px solid var(--accent);
+    border-top: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    padding: var(--space-4) var(--space-5);
+    margin: var(--space-3) 0;
+    max-width: 78ch;
+    font-variation-settings: "opsz" 96, "WONK" 1;
+}
+.tb-quote::before {
+    content: "“";
+    color: var(--accent);
+    font-family: var(--type-display);
+    font-size: 2.4em;
+    line-height: 0;
+    vertical-align: -0.4em;
+    margin-right: 0.1em;
+}
+
+/* ── Link grid (Docs tab) ───────────────────────────────────── */
+.tb-link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-3);
+    margin: var(--space-4) 0;
+}
+.tb-link-card {
+    display: block;
+    background: var(--bg-elev-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: var(--space-4);
+    text-decoration: none;
+    transition: border-color var(--dur-fast) var(--ease-out),
+                transform var(--dur-fast) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+}
+.tb-link-card::after {
+    content: "→";
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    color: var(--ink-faint);
+    font-family: var(--type-mono);
+    font-size: 1.2em;
+    transition: color var(--dur-fast) var(--ease-out),
+                transform var(--dur-fast) var(--ease-out);
+}
+.tb-link-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+.tb-link-card:hover::after {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+}
+.tb-link-eyebrow {
+    font-family: var(--type-mono);
+    font-size: 0.7em;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-2);
+}
+.tb-link-title {
+    font-family: var(--type-display);
+    font-weight: 500;
+    font-size: 1.06em;
+    color: var(--ink);
+    margin-bottom: var(--space-1);
+    line-height: 1.25;
+    padding-right: var(--space-4);
+}
+.tb-link-sub {
     font-family: var(--type-mono);
     font-size: 0.78em;
-    color: var(--accent);
-    margin-top: var(--space-3);
+    color: var(--ink-mute);
     letter-spacing: 0.04em;
-    text-transform: uppercase;
+}
+
+/* ── Plot panel (gr.Plot wrapper) ───────────────────────────── */
+.gradio-container .plot-container,
+.gradio-container [data-testid="plot"] {
+    background: var(--bg-elev-1) !important;
+    border: 1px solid var(--rule) !important;
+    border-radius: var(--r-md) !important;
+    padding: 4px !important;
+    margin: var(--space-3) 0 !important;
+    box-shadow: var(--shadow-card) !important;
+    transition: border-color var(--dur-fast) var(--ease-out) !important;
+}
+.gradio-container .plot-container:hover,
+.gradio-container [data-testid="plot"]:hover {
+    border-color: var(--rule-strong) !important;
+}
+/* Plotly mode-bar (toolbar) styling */
+.gradio-container .modebar {
+    background: transparent !important;
+}
+.gradio-container .modebar-btn path {
+    fill: var(--ink-mute) !important;
+    transition: fill var(--dur-fast) var(--ease-out);
+}
+.gradio-container .modebar-btn:hover path,
+.gradio-container .modebar-btn.active path {
+    fill: var(--accent) !important;
 }
 
 /* ── Tabs ───────────────────────────────────────────────────── */

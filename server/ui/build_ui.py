@@ -1,7 +1,7 @@
 """Top-level Gradio Blocks app for TradeBench.
 
-Tab spine: overview · environment · rewards · walk_forward · demo ·
-baselines · docs.
+Tab spine: trajectory · environment · reward · defenses · reflection-loop ·
+demo · baselines · docs.
 """
 
 from __future__ import annotations
@@ -14,23 +14,32 @@ from .tabs import (
     docs,
     environment,
     overview,
+    results,
     rewards,
     walk_forward,
 )
 from .theme import DARK_THEME, NEON_CSS
 
-# Editorial header — paired with .tb-header CSS in components.css.
+# Editorial header: paired with .tb-header CSS in components.css.
 _HEADER_HTML = """
 <div class="tb-header">
-    <h1>Trade<span class="tb-accent">Bench</span></h1>
-    <p class="tb-lead">
-        A long-horizon, non-stationary, reward-hack-resistant finance
-        trading RL environment for LLM agents — built for actual training,
-        not just evaluation.
-    </p>
-    <div class="tb-meta">
-        openenv · theme 2 · 7-component composite reward · layered look-ahead defense
+    <div class="tb-header-rule"></div>
+    <div class="tb-header-meta">
+        <span class="tb-header-tag">openenv</span>
+        <span class="tb-header-dot">·</span>
+        <span class="tb-header-tag">theme 2 · long-horizon planning</span>
+        <span class="tb-header-dot">·</span>
+        <span class="tb-header-tag">7-component composite reward</span>
+        <span class="tb-header-dot">·</span>
+        <span class="tb-header-tag">6 anti-leak layers</span>
     </div>
+    <h1 class="tb-header-title">Trade<span class="tb-accent">Bench</span></h1>
+    <p class="tb-lead">
+        A long-horizon, non-stationary, reward-hack-resistant equities-trading RL
+        environment for LLM agents. Reward in <code>[0, 1]</code>. Real OHLCV
+        behind a four-layer anti-memorization stack. Designed for actual
+        training, not just evaluation.
+    </p>
 </div>
 """
 
@@ -52,19 +61,21 @@ def build_ui() -> gr.Blocks:
         gr.HTML(_HEADER_HTML)
 
         with gr.Tabs():
-            with gr.Tab("Overview", id="overview"):
+            with gr.Tab("Trajectory", id="trajectory"):
                 overview.render()
             with gr.Tab("Environment", id="environment"):
                 environment.render()
-            with gr.Tab("Rewards", id="rewards"):
+            with gr.Tab("Reward", id="reward"):
                 rewards.render()
-            with gr.Tab("Walk-Forward", id="walk_forward"):
+            with gr.Tab("Defenses", id="defenses"):
                 walk_forward.render()
-            with gr.Tab("Demo", id="demo"):
+            with gr.Tab("Reflection Loop", id="reflection_loop"):
+                results.render()
+            with gr.Tab("Run", id="demo"):
                 demo.render()
             with gr.Tab("Baselines", id="baselines"):
                 baselines.render()
-            with gr.Tab("Docs & Links", id="docs"):
+            with gr.Tab("Docs", id="docs"):
                 docs.render()
 
     return app

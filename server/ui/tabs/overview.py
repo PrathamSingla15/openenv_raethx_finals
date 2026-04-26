@@ -1,99 +1,101 @@
-"""Overview tab — capability gap, walk-forward hero, design pillars."""
+"""Overview tab: headline-results-first hero with the trajectory chart."""
 
 from __future__ import annotations
 
 import gradio as gr
 
+from .. import plots
+
 
 _HERO_HTML = """
-<div class="tb-timeline">
-    <div class="tb-section-eyebrow">walk-forward window</div>
-    <div class="tb-timeline-rail">
-        <div class="tb-timeline-seg t1">T1 · 60 bars</div>
-        <div class="tb-timeline-seg embargo"></div>
-        <div class="tb-timeline-seg t2">T2 · 120 bars</div>
-        <div class="tb-timeline-seg embargo"></div>
-        <div class="tb-timeline-seg t3">T3 · 252 bars</div>
+<div class="tb-hero">
+    <div class="tb-hero-stack">
+        <div class="tb-section-eyebrow">5 reflections · 0 gradient updates · 119-bar test episode</div>
+        <h2 class="tb-hero-title">
+            Frozen <span class="tb-accent">Qwen3-32B</span> climbed
+            <span class="tb-accent">+4.3 pp</span> on score and
+            <span class="tb-accent">3.6×</span> on ROI by
+            <span class="tb-accent">rewriting its own prompt</span>.
+        </h2>
+        <p class="tb-hero-lead">
+            TradeBench is a long-horizon equities-trading environment built so an LLM agent
+            can actually <em>learn</em> on it. The reward is a 7-component convex composite
+            in [0, 1] gated by a binary compliance check; the data is real OHLCV behind a
+            four-layer anti-memorization stack; and a single 119-bar test rollout produces
+            300-500 LLM calls, dense per-bar reward, and a deterministic grader.
+            We took two open-weights base models, ran a GEPA-style reflection loop that
+            never touches a weight, and got monotone score climbs on both.
+        </p>
     </div>
-    <div class="tb-timeline-axis">
-        <div>2020-01 → 03</div>
-        <div>—</div>
-        <div>2020-06 → 11</div>
-        <div>—</div>
-        <div>2024-01 → 12</div>
-    </div>
-</div>
 
-<div class="tb-metric-row">
-    <div class="tb-metric">
-        <div class="tb-metric-label">composite reward</div>
-        <div class="tb-metric-value">7-vec</div>
-        <div class="tb-metric-sub">log-wealth + 6 bounded regularizers</div>
-    </div>
-    <div class="tb-metric">
-        <div class="tb-metric-label">leak defenses</div>
-        <div class="tb-metric-value">5</div>
-        <div class="tb-metric-sub">PIT · date-gate · progressive FS · rules clause · post-cutoff tier</div>
-    </div>
-    <div class="tb-metric">
-        <div class="tb-metric-label">verifier checks</div>
-        <div class="tb-metric-value">6</div>
-        <div class="tb-metric-sub">conformance · leak · replay · determinism · termination · edge</div>
+    <div class="tb-hero-stats">
+        <div class="tb-statcard">
+            <div class="tb-statcard-eyebrow">Qwen3-32B · Groq</div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">score_normalized</div>
+                <div class="tb-statcard-arrow">0.6155 → <strong>0.6584</strong></div>
+            </div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">ROI</div>
+                <div class="tb-statcard-arrow">+2.78% → <strong>+9.89%</strong></div>
+            </div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">place_order</div>
+                <div class="tb-statcard-arrow">4 → <strong>12</strong></div>
+            </div>
+            <div class="tb-statcard-foot">5 iterations · monotone</div>
+        </div>
+        <div class="tb-statcard">
+            <div class="tb-statcard-eyebrow">GLM-5.1 · Together</div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">score_normalized</div>
+                <div class="tb-statcard-arrow">0.6243 → <strong>0.6453</strong></div>
+            </div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">ROI</div>
+                <div class="tb-statcard-arrow">+2.83% → <strong>+4.69%</strong></div>
+            </div>
+            <div class="tb-statcard-row">
+                <div class="tb-statcard-key">place_order</div>
+                <div class="tb-statcard-arrow">2 → <strong>6</strong></div>
+            </div>
+            <div class="tb-statcard-foot">3 iterations · climb · dip · recover</div>
+        </div>
     </div>
 </div>
 """
 
-_GAP_MD = """
-<div class="tb-section-eyebrow">the capability gap</div>
 
-## Frontier LLMs fail at long-horizon, non-stationary decision-making under uncertainty.
-
-Today's models can reason about a single trading decision in isolation, but
-break down across hundreds of sequential choices where past actions reshape
-future state, correlations drift across regimes, and weight memorization gives
-a false sense of edge. **TradeBench is the equities-trading instance of that
-gap, instrumented for training, not just scoring.**
-
-- 11 tools, 60 / 120 / 252-bar episodes, point-in-time data with no peeking.
-- Dense Kelly-optimal log-wealth reward decomposed into seven components a
-  GRPO trainer can attribute credit across.
-- Six independent look-ahead defenses stacked so the agent must derive
-  strategy from the data it sees, not retrieve it from training memory.
-- A six-check verifier that has to PASS for any submission claim to hold.
-"""
-
-
-_DESIGN_MD = """
+_PILLARS_MD = """
 <div class="tb-section-eyebrow">design pillars</div>
 
-## Three commitments that distinguish this env from existing finance-LLM benchmarks.
+## Three commitments that distinguish this environment.
 
-### 1. Dense Kelly-optimal reward, decomposed for credit assignment
-The primary signal is `log(V_{t+1}/V_t)` — Kelly-optimal, symmetric around ruin,
-the canonical objective for long-run geometric growth. Six bounded regularizers
-(Sharpe bonus, drawdown, turnover, concentration, rules-compliance, anti-hack)
-shape behavior without dominating the wealth signal. GRPO consumes the
-seven components as an independent reward vector — credit attribution per
-component, not just per scalar.
+### 1. Per-bar reward in [0, 1] by construction
+A convex combination of seven trader-recognizable components (alpha vs equal-weight
+buy-and-hold at 0.40 weight, cumulative return, drawdown, solvency, turnover
+efficiency, concentration, downside-volatility-of-bar-alpha) multiplied by a
+{0, 1} compliance gate. The episode score is the mean per-bar reward, also in
+[0, 1]. No unbounded log-wealth head, no flatline-gets-free-Sharpe exploit, no
+additive penalty that a great quarter could earn back.
 
-### 2. Layered look-ahead defenses
-SQL-level point-in-time filter at the DuckDB layer, tool-level date-gating that
-hard-rejects future `as_of_date`, progressive filesystem materialization that
-copies only past-dated files into the sandbox mount, a rules-based-strategy
-clause appended to every prompt and verified by regex on agent reasoning, and
-a post-cutoff T3 test tier. **Each layer is independently bypassable in
-principle; together they are not.**
+### 2. Long-horizon planning spine, server-enforced
+A `record_decision` (regime label, edge summary, intended exposure, top
+convictions, uncertainty) is mandatory before every `advance_day`. The agent
+literally cannot tick the clock without committing a thesis on the record.
+Every advance leaves a paper trail the reward function can audit.
 
-### 3. Verifier-asserted, not verifier-claimed
-Every claim above lives in `python -m tradebench.verifier --tier {t1,t2,t3}` —
-six checks that exit non-zero on any failure. Reward replay equality, sandbox
-filesystem audit, scalar-tolerance determinism, observation Pydantic round-trip,
-malformed-action rejection, end-of-window termination. **PASS** on all three
-tiers as of submission.
+### 3. Anti-memorization is structural, not aspirational
+Aliased universe (`tier_a01` ... `tier_a10`, real ticker symbols never appear
+in any tool output) layered with a randomly drawn source window from the broad
+[2018, today] pool, per-build alias-to-ticker permutation, and σ=0.0005
+return-noise overlay. Plus the standard SQL/tool/FS/rules-clause stack so the
+agent has to derive strategy from data it can see, not retrieve it from
+weight memory.
 """
 
 
 def render() -> None:
     gr.HTML(_HERO_HTML)
-    gr.Markdown(_GAP_MD)
-    gr.Markdown(_DESIGN_MD)
+    gr.Plot(value=plots.reward_trajectory(), show_label=False)
+    gr.Markdown(_PILLARS_MD)

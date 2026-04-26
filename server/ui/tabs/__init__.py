@@ -10,6 +10,7 @@ from . import (
     docs,
     environment,
     overview,
+    results,
     rewards,
     walk_forward,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "docs",
     "environment",
     "overview",
+    "results",
     "rewards",
     "walk_forward",
 ]

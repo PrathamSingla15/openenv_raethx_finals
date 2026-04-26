@@ -1,4 +1,4 @@
-"""Environment tab — task tiers, daily loop, tool surface, Pydantic schemas."""
+"""Environment tab: train/test split, daily loop, tool surface, schemas."""
 
 from __future__ import annotations
 
@@ -12,58 +12,64 @@ except (ImportError, ValueError):  # pragma: no cover - dev fallback
     from models import TradeAction, TradeObservation, TradeState  # type: ignore[no-redef]
 
 
-_TIERS_HTML = """
-<div class="tb-section-eyebrow">three task tiers</div>
-<h2 class="tb-section-title">Each tier is a deterministic episode generator —
-same seed and manifest digest yield byte-equivalent trajectories.</h2>
+_SPLIT_HTML = """
+<div class="tb-section-eyebrow">train / test split</div>
+<h2 class="tb-section-title">A single-task environment with two splits.
+<code>train</code> is in-context study; <code>test</code> is the held-out
+walked-bar-by-bar evaluation that produces the score.</h2>
 
 <table class="tb-table">
     <thead>
         <tr>
-            <th>Tier</th>
-            <th>Bars</th>
+            <th>Split</th>
+            <th>Horizon</th>
             <th>Universe</th>
-            <th class="mono">Window</th>
-            <th>What it tests</th>
+            <th>Role</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td><strong>T1 · Easy</strong></td>
-            <td class="mono">60</td>
-            <td>5 aliased assets</td>
-            <td class="mono">2020-01-02 → 2020-03-31</td>
-            <td>Basic Kelly sizing, short horizon</td>
+            <td><code>train</code></td>
+            <td class="mono">252 bars (~1 yr)</td>
+            <td>10 aliased equities</td>
+            <td>In-context study packet. The full window (OHLCV plus summary stats and
+                correlation matrix) is delivered at episode reset. The agent reads it,
+                derives a strategy, and emits <strong>one</strong> <code>record_decision</code>.
+                <em>No per-bar rollout, no reward.</em></td>
         </tr>
         <tr>
-            <td><strong>T2 · Medium</strong></td>
-            <td class="mono">120</td>
-            <td>10 aliased assets</td>
-            <td class="mono">2020-06-01 → 2020-11-30</td>
-            <td>Mid-episode regime navigation, drawdown recovery</td>
-        </tr>
-        <tr>
-            <td><strong>T3 · Hard</strong></td>
-            <td class="mono">252</td>
-            <td>20 aliased assets</td>
-            <td class="mono">2024-01-02 → 2024-12-31</td>
-            <td>Full season, post-cutoff anti-memorization stress test</td>
+            <td><code>test</code></td>
+            <td class="mono">120 bars (~6 mo)</td>
+            <td>Same 10 aliases</td>
+            <td>Held-out walked-bar-by-bar evaluation. Calendar-adjacent to <code>train</code>
+                (starts the trading day after <code>train</code> ends). The agent steps one
+                bar at a time, the composite reward emits per <code>advance_day</code>, and
+                the mean per-bar reward is <code>score_normalized</code>.
+                <strong>This is the score that counts.</strong></td>
         </tr>
     </tbody>
 </table>
 
 <p class="tb-section-lead tb-section-lead-mute">
-Bars are <strong>real OHLCV</strong> from yfinance (mega-cap US tickers across
-2018→present), baked once by <code>scripts/build_real_dataset.py</code> and
-spliced into the catalog. Four anti-memorization layers stack on top:
-<em>(1)</em> assets are exposed only as <code>tier_t{1,2,3}_a{NN}</code>
-aliases — real symbols never appear in any tool output;
-<em>(2)</em> each tier picks an independent random source-window;
-<em>(3)</em> the alias↔ticker permutation is per-build-random; and
-<em>(4)</em> σ=0.0005 zero-mean Gaussian return noise prevents exact-price
-recall. The (window, ticker, permutation, noise-seed) tuple lives in a
-private sidecar that <code>progressive_fs</code> never copies into the agent
-sandbox. See <code>docs/UI_DESIGN_RATIONALE.md</code> for the full design.
+A separate <code>t1</code> debug tier (60 bars, 5 assets) exists for harness
+validation and prompt iteration; it is not part of the scored split. Every result
+in this UI is from a single <code>test</code> rollout. The deterministic grader
+emits final cumulative log-wealth, max drawdown, Sharpe, Sortino, and an avoided-
+ruin boolean from the ledger event log. Fully reproducible, no LLM judge.
+</p>
+
+<p class="tb-section-lead tb-section-lead-mute">
+<strong>Real-derived, aliased, date-shifted data.</strong> Test bars come from real
+OHLCV (mega-cap US tickers via yfinance) baked once by
+<code>scripts/build_real_dataset.py</code>. Four anti-memorization layers stack on
+top: <em>(1)</em> every asset is exposed only as <code>tier_a01</code> ...
+<code>tier_a10</code> aliases — real ticker symbols never appear in any tool
+output or sandbox file; <em>(2)</em> the source window is a randomly drawn period
+from <code>[2018, today]</code>, committed once at build time and never the same
+across re-builds; <em>(3)</em> the alias-to-ticker mapping is permuted per build,
+so even recognizing "this looks like 2022-Q3" does not reveal which alias is
+AAPL; <em>(4)</em> a σ=0.0005 zero-mean Gaussian return-noise overlay prevents
+exact-price recall.
 </p>
 """
 
@@ -73,7 +79,7 @@ _LOOP_HTML = """
 <h2 class="tb-section-title">observe → model → size → place orders → advance.
 Only <em>advance_day</em> moves the clock.</h2>
 
-<svg viewBox="0 0 880 160" style="width: 100%; height: auto; margin-top: 16px;">
+<svg viewBox="0 0 880 160" style="width: 100%; height: auto; margin-top: 18px;" role="img" aria-label="Five-step daily loop diagram">
     <defs>
         <linearGradient id="loopGrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stop-color="#22D3EE"/>
@@ -84,22 +90,21 @@ Only <em>advance_day</em> moves the clock.</h2>
         </marker>
     </defs>
 
-    <!-- 5 phase boxes -->
     <g font-family="JetBrains Mono, monospace" font-size="13" fill="#E6E8EB">
-        <rect x="20" y="40" width="140" height="80" rx="6" fill="#11161D" stroke="#1F2731"/>
-        <text x="90" y="68" text-anchor="middle" fill="#22D3EE" font-size="11" letter-spacing="1.4">OBSERVE</text>
-        <text x="90" y="92" text-anchor="middle" fill="#7A8693" font-size="11">view_*  (×6)</text>
-        <text x="90" y="108" text-anchor="middle" fill="#7A8693" font-size="11">free, read-only</text>
+        <rect x="20"  y="40" width="140" height="80" rx="6" fill="#11161D" stroke="#1F2731"/>
+        <text x="90"  y="68" text-anchor="middle" fill="#22D3EE" font-size="11" letter-spacing="1.4">OBSERVE</text>
+        <text x="90"  y="92" text-anchor="middle" fill="#7A8693" font-size="11">view_*  (×6)</text>
+        <text x="90"  y="108" text-anchor="middle" fill="#7A8693" font-size="11">free, read-only</text>
 
         <rect x="180" y="40" width="140" height="80" rx="6" fill="#11161D" stroke="#1F2731"/>
         <text x="250" y="68" text-anchor="middle" fill="#22D3EE" font-size="11" letter-spacing="1.4">MODEL</text>
         <text x="250" y="92" text-anchor="middle" fill="#7A8693" font-size="11">sandbox_exec</text>
         <text x="250" y="108" text-anchor="middle" fill="#7A8693" font-size="11">no net, seccomp</text>
 
-        <rect x="340" y="40" width="140" height="80" rx="6" fill="#11161D" stroke="#1F2731"/>
+        <rect x="340" y="40" width="140" height="80" rx="6" fill="#1A2029" stroke="#22D3EE" stroke-width="1.5"/>
         <text x="410" y="68" text-anchor="middle" fill="#22D3EE" font-size="11" letter-spacing="1.4">SIZE</text>
-        <text x="410" y="92" text-anchor="middle" fill="#7A8693" font-size="11">record_decision</text>
-        <text x="410" y="108" text-anchor="middle" fill="#7A8693" font-size="11">+ reasoning scan</text>
+        <text x="410" y="92" text-anchor="middle" fill="#E6E8EB" font-size="11">record_decision</text>
+        <text x="410" y="108" text-anchor="middle" fill="#E6E8EB" font-size="11">required per bar</text>
 
         <rect x="500" y="40" width="140" height="80" rx="6" fill="#11161D" stroke="#1F2731"/>
         <text x="570" y="68" text-anchor="middle" fill="#22D3EE" font-size="11" letter-spacing="1.4">ORDERS</text>
@@ -112,7 +117,6 @@ Only <em>advance_day</em> moves the clock.</h2>
         <text x="760" y="108" text-anchor="middle" fill="#E6E8EB" font-size="11">composite reward emitted</text>
     </g>
 
-    <!-- arrows -->
     <g stroke="#22D3EE" stroke-width="1.4" fill="none" marker-end="url(#arr)">
         <line x1="160" y1="80" x2="180" y2="80"/>
         <line x1="320" y1="80" x2="340" y2="80"/>
@@ -120,20 +124,20 @@ Only <em>advance_day</em> moves the clock.</h2>
         <line x1="640" y1="80" x2="660" y2="80"/>
     </g>
 
-    <!-- bottom rail label -->
     <text x="440" y="150" text-anchor="middle" font-family="JetBrains Mono, monospace"
           font-size="10" fill="#7A8693" letter-spacing="1.4">
-        only ADVANCE_DAY moves t → t+1.  every other tool is free-cost, read-only or queue-only.
+        only ADVANCE_DAY moves t → t+1.   every other tool is free-cost, read-only or queue-only.
     </text>
 </svg>
 """
 
 
 _TOOLS_HTML = """
-<div class="tb-section-eyebrow">tool surface — 11 tools</div>
+<div class="tb-section-eyebrow">tool surface · 11 tools</div>
 <h2 class="tb-section-title">Six read-only views, three order-book ops,
-one time-advancer, one sandboxed Python — plus an optional <code>reasoning</code>
-field on <code>record_decision</code> for the rules-clause scanner.</h2>
+one time-advancer, one sandboxed Python — plus an optional
+<code>reasoning</code> field on <code>record_decision</code> for the
+rules-clause scanner.</h2>
 
 <table class="tb-table">
     <thead>
@@ -167,7 +171,7 @@ def _schema_block(title: str, model_cls) -> str:
 
 
 def render() -> None:
-    gr.HTML(_TIERS_HTML)
+    gr.HTML(_SPLIT_HTML)
     gr.HTML(_LOOP_HTML)
     gr.HTML(_TOOLS_HTML)
     gr.HTML(
