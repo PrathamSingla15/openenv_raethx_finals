@@ -82,20 +82,20 @@ _LANDING_HTML = """
 .tb-intro-eyebrow .is-accent { color: var(--accent); }
 .tb-intro-title {
     font-family: var(--type-body);
-    font-weight: 600;
-    font-size: clamp(2rem, 4.6vw, 3.4rem);
-    line-height: 1.05;
-    letter-spacing: -0.025em;
+    font-weight: 700;
+    font-size: clamp(2.8rem, 7.2vw, 5.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     color: var(--ink);
-    margin: 0 0 24px;
-    max-width: 22ch;
+    margin: 0 0 28px;
+    max-width: 18ch;
 }
 .tb-intro-title .tb-accent {
     color: var(--ink);
     text-decoration: underline;
     text-decoration-color: var(--accent);
-    text-decoration-thickness: 3px;
-    text-underline-offset: 6px;
+    text-decoration-thickness: 5px;
+    text-underline-offset: 10px;
 }
 .tb-intro-rule {
     height: 1px;
@@ -133,7 +133,8 @@ _LANDING_HTML = """
 }
 @media (max-width: 720px) {
     .tb-intro { padding: 24px 0 16px; }
-    .tb-intro-title { font-size: clamp(1.6rem, 8vw, 2.2rem); }
+    .tb-intro-title { font-size: clamp(2rem, 10vw, 3rem); letter-spacing: -0.03em; }
+    .tb-intro-title .tb-accent { text-decoration-thickness: 3px; text-underline-offset: 7px; }
     .tb-intro-body p { font-size: 0.92rem; line-height: 1.5; }
 }
 </style>
