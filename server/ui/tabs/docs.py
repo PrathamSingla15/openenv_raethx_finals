@@ -6,9 +6,11 @@ import gradio as gr
 
 
 _LINKS_HTML = """
-<div class="tb-section-eyebrow">deployment · code · companion docs</div>
-<h2 class="tb-section-title">Everything a reviewer needs to inspect the env,
-re-run it, or cite it.</h2>
+<div class="tb-section-eyebrow">deployment &middot; code &middot; companion docs</div>
+<h2 class="tb-section-title">
+    <span class="tb-faded">Everything a reviewer needs to inspect the env,</span>
+    re-run it, or cite it.
+</h2>
 
 <div class="tb-link-grid">
     <a class="tb-link-card" href="https://huggingface.co/spaces/yobro4619/tradebench" target="_blank">
@@ -51,7 +53,11 @@ re-run it, or cite it.</h2>
 
 
 _REPO_HTML = """
-<div class="tb-section-eyebrow">repository · what's where</div>
+<div class="tb-section-eyebrow">repository &middot; what's where</div>
+<h2 class="tb-section-title">
+    <span class="tb-faded">The map of the repo</span>
+    that produced everything above.
+</h2>
 
 <table class="tb-table">
     <thead>
@@ -82,7 +88,10 @@ _REPO_HTML = """
 
 _CITATION_HTML = """
 <div class="tb-section-eyebrow">citation</div>
-<h2 class="tb-section-title">If TradeBench is useful in your work, cite as:</h2>
+<h2 class="tb-section-title">
+    <span class="tb-faded">If TradeBench is useful in your work,</span>
+    cite as:
+</h2>
 
 <details class="tb-schema" open>
     <summary>BibTeX</summary>

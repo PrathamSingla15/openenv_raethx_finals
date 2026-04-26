@@ -1,9 +1,9 @@
-"""Editorial quant-terminal theme for the TradeBench Gradio UI.
+"""Editorial pure-black theme for the TradeBench Gradio UI.
 
 Exports:
 
-- ``DARK_THEME`` — Gradio Base theme with the charcoal/cyan palette and
-  the Fraunces / IBM Plex Sans / JetBrains Mono font stack.
+- ``DARK_THEME`` — Gradio Base theme with the pure-black palette and
+  the Fraunces / DM Sans / IBM Plex Mono font stack.
 - ``NEON_CSS`` — inlined design tokens (``static/tokens.css``) and
   component primitives (``static/components.css``).
 """
@@ -26,20 +26,20 @@ def _read_static(name: str) -> str:
 
 
 # Palette values mirror static/tokens.css so Gradio component theming and
-# our component CSS land on the same colors.
-_CHARCOAL = colors.Color(
-    c50="#F8FAFC",
-    c100="#E6E8EB",
-    c200="#B6BDC7",
-    c300="#7A8693",
-    c400="#4F5763",
-    c500="#3A424E",
-    c600="#2A3340",
-    c700="#1F2731",
-    c800="#1A2029",
-    c900="#11161D",
-    c950="#0A0E13",
-    name="charcoal",
+# our component CSS land on the same colors. Pure black canvas.
+_NEUTRAL = colors.Color(
+    c50="#FFFFFF",
+    c100="#F5F5F5",
+    c200="#E5E5E5",
+    c300="#A3A3A3",
+    c400="#737373",
+    c500="#525252",
+    c600="#404040",
+    c700="#262626",
+    c800="#171717",
+    c900="#0A0A0B",
+    c950="#000000",
+    name="ink",
 )
 
 _CYAN = colors.Color(
@@ -61,67 +61,70 @@ _CYAN = colors.Color(
 DARK_THEME = gr.themes.Base(
     primary_hue=_CYAN,
     secondary_hue=_CYAN,
-    neutral_hue=_CHARCOAL,
+    neutral_hue=_NEUTRAL,
     font=[
+        fonts.GoogleFont("DM Sans"),
         fonts.GoogleFont("IBM Plex Sans"),
         "ui-sans-serif",
         "system-ui",
         "sans-serif",
     ],
     font_mono=[
+        fonts.GoogleFont("IBM Plex Mono"),
         fonts.GoogleFont("JetBrains Mono"),
         "SF Mono",
         "Menlo",
         "Consolas",
         "monospace",
     ],
-    radius_size=sizes.radius_sm,
+    radius_size=sizes.radius_none,
 ).set(
-    body_background_fill="#0A0E13",
-    body_background_fill_dark="#0A0E13",
-    body_text_color="#E6E8EB",
-    body_text_color_dark="#E6E8EB",
-    body_text_color_subdued="#7A8693",
-    body_text_color_subdued_dark="#7A8693",
-    block_background_fill="#11161D",
-    block_background_fill_dark="#11161D",
-    block_border_color="#1F2731",
-    block_border_color_dark="#1F2731",
-    block_label_text_color="#E6E8EB",
-    block_label_text_color_dark="#E6E8EB",
-    block_title_text_color="#E6E8EB",
-    block_title_text_color_dark="#E6E8EB",
-    panel_background_fill="#0A0E13",
-    panel_background_fill_dark="#0A0E13",
-    panel_border_color="#1F2731",
-    panel_border_color_dark="#1F2731",
-    input_background_fill="#1A2029",
-    input_background_fill_dark="#1A2029",
-    input_border_color="#1F2731",
-    input_border_color_dark="#1F2731",
-    button_primary_background_fill="#22D3EE",
-    button_primary_background_fill_dark="#22D3EE",
-    button_primary_background_fill_hover="#67E8F9",
-    button_primary_background_fill_hover_dark="#67E8F9",
-    button_primary_text_color="#0A0E13",
-    button_primary_text_color_dark="#0A0E13",
-    button_secondary_background_fill="#1A2029",
-    button_secondary_background_fill_dark="#1A2029",
-    button_secondary_background_fill_hover="#1F2731",
-    button_secondary_background_fill_hover_dark="#1F2731",
-    button_secondary_text_color="#E6E8EB",
-    button_secondary_text_color_dark="#E6E8EB",
-    border_color_primary="#1F2731",
-    border_color_primary_dark="#1F2731",
-    color_accent_soft="#0E7490",
-    color_accent_soft_dark="#0E7490",
+    body_background_fill="#000000",
+    body_background_fill_dark="#000000",
+    body_text_color="#FFFFFF",
+    body_text_color_dark="#FFFFFF",
+    body_text_color_subdued="rgba(255,255,255,0.66)",
+    body_text_color_subdued_dark="rgba(255,255,255,0.66)",
+    block_background_fill="#0A0A0B",
+    block_background_fill_dark="#0A0A0B",
+    block_border_color="rgba(255,255,255,0.10)",
+    block_border_color_dark="rgba(255,255,255,0.10)",
+    block_label_text_color="#FFFFFF",
+    block_label_text_color_dark="#FFFFFF",
+    block_title_text_color="#FFFFFF",
+    block_title_text_color_dark="#FFFFFF",
+    panel_background_fill="#000000",
+    panel_background_fill_dark="#000000",
+    panel_border_color="rgba(255,255,255,0.10)",
+    panel_border_color_dark="rgba(255,255,255,0.10)",
+    input_background_fill="#0A0A0B",
+    input_background_fill_dark="#0A0A0B",
+    input_border_color="rgba(255,255,255,0.10)",
+    input_border_color_dark="rgba(255,255,255,0.10)",
+    button_primary_background_fill="#FFFFFF",
+    button_primary_background_fill_dark="#FFFFFF",
+    button_primary_background_fill_hover="#22D3EE",
+    button_primary_background_fill_hover_dark="#22D3EE",
+    button_primary_text_color="#000000",
+    button_primary_text_color_dark="#000000",
+    button_secondary_background_fill="transparent",
+    button_secondary_background_fill_dark="transparent",
+    button_secondary_background_fill_hover="rgba(255,255,255,0.04)",
+    button_secondary_background_fill_hover_dark="rgba(255,255,255,0.04)",
+    button_secondary_text_color="#FFFFFF",
+    button_secondary_text_color_dark="#FFFFFF",
+    border_color_primary="rgba(255,255,255,0.10)",
+    border_color_primary_dark="rgba(255,255,255,0.10)",
+    color_accent_soft="rgba(34,211,238,0.20)",
+    color_accent_soft_dark="rgba(34,211,238,0.20)",
 )
 
 
-# Fraunces is the one typeface not in Gradio's default font slots; pull it
-# explicitly so the editorial headlines render with the variable serif.
+# Pull serif + body + mono explicitly. RAETH-style stack: Fraunces (display),
+# DM Sans (body), IBM Plex Mono (labels). Cormorant Garamond is a softer
+# fallback if Fraunces fails.
 _FONT_IMPORT = """
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 """
 
 NEON_CSS = "\n".join(

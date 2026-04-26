@@ -1,70 +1,78 @@
 /* TradeBench design tokens.
-   Charcoal canvas, electric-cyan protagonist, lime/amber as before/after pair. */
+   Pure-black editorial canvas. Mostly monochrome, with cyan as the lone
+   protagonist used very sparingly. Lime/amber as the before/after pair. */
 
 :root {
-    /* Surface */
-    --bg: #0A0E13;
-    --bg-elev-1: #11161D;
-    --bg-elev-2: #1A2029;
-    --bg-glass: rgba(17, 22, 29, 0.72);
+    /* Surface — pure black with two near-black elevations */
+    --bg: #000000;
+    --bg-elev-1: #0A0A0B;
+    --bg-elev-2: #131316;
+    --bg-glass: rgba(10, 10, 11, 0.55);
 
-    /* Type */
-    --ink: #E6E8EB;
-    --ink-mute: #7A8693;
-    --ink-faint: #4F5763;
+    /* Type — full white as protagonist; opacity ramp for hierarchy */
+    --ink: #FFFFFF;
+    --ink-mute: rgba(255, 255, 255, 0.66);
+    --ink-faint: rgba(255, 255, 255, 0.40);
+    --ink-ghost: rgba(255, 255, 255, 0.18);
 
-    /* Accent. Cyan is the protagonist used sparingly. */
+    /* Accent — cyan, used for italic accents and live indicators only */
     --accent: #22D3EE;
     --accent-hi: #67E8F9;
-    --accent-lo: #0E7490;
-    --accent-glow: rgba(34, 211, 238, 0.18);
+    --accent-lo: rgba(34, 211, 238, 0.20);
+    --accent-glow: rgba(34, 211, 238, 0.08);
 
-    /* "Before" / "After" pair used in plots and cards. */
-    --before: #F59E0B;        /* amber: baseline / pre-reflection */
+    /* Before / after pair (used in plots only) */
+    --before: #F59E0B;
     --before-soft: rgba(245, 158, 11, 0.14);
-    --after: #84CC16;         /* lime: converged / post-reflection */
+    --after: #84CC16;
     --after-soft: rgba(132, 204, 22, 0.14);
-    --warn: #E11D48;          /* crimson: trough / regression */
+    --warn: #E11D48;
 
     /* PnL semantics, used only on numeric pills. */
-    --long: #5BC97D;
-    --long-mute: #3F8B58;
-    --short: #E37D78;
-    --short-mute: #9F4F4B;
+    --long: #84CC16;
+    --long-mute: #5F8A1F;
+    --short: #F87171;
+    --short-mute: #B14848;
 
-    /* Structure */
-    --rule: #1F2731;
-    --rule-strong: #2A3340;
-    --grid: rgba(34, 211, 238, 0.04);
+    /* Structure — hairlines, all white-with-alpha */
+    --rule: rgba(255, 255, 255, 0.10);
+    --rule-strong: rgba(255, 255, 255, 0.20);
+    --rule-soft: rgba(255, 255, 255, 0.06);
+    --grid: rgba(255, 255, 255, 0.025);
 
     /* Type ramp */
-    --type-display: "Fraunces", "EB Garamond", Georgia, serif;
-    --type-body: "IBM Plex Sans", "Plex Sans", system-ui, sans-serif;
-    --type-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+    --type-display: "Fraunces", "Cormorant Garamond", "EB Garamond", Georgia, serif;
+    --type-body: "DM Sans", "IBM Plex Sans", "Plex Sans", system-ui, sans-serif;
+    --type-mono: "IBM Plex Mono", "JetBrains Mono", "SF Mono", "Menlo", monospace;
 
-    /* Spacing scale */
+    /* Spacing scale — more generous than terminal scale */
     --space-1: 4px;
     --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 18px;
-    --space-5: 28px;
-    --space-6: 44px;
-    --space-7: 72px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 40px;
+    --space-6: 64px;
+    --space-7: 96px;
+    --space-8: 144px;
 
-    /* Radii */
-    --r-sm: 4px;
-    --r-md: 8px;
-    --r-lg: 14px;
+    /* Radii — sharp by default; slight round on cards */
+    --r-sm: 0;
+    --r-md: 0;
+    --r-lg: 0;
 
     /* Motion */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --dur-fast: 150ms;
-    --dur-med: 240ms;
-    --dur-slow: 600ms;
+    --dur-fast: 200ms;
+    --dur-med: 500ms;
+    --dur-slow: 800ms;
 
     /* Shadows */
-    --shadow-card: 0 10px 30px -16px rgba(0, 0, 0, 0.65),
-                   0 1px 0 0 rgba(255, 255, 255, 0.02) inset;
-    --shadow-deep: 0 16px 60px -28px rgba(0, 0, 0, 0.85),
-                   0 2px 0 0 rgba(34, 211, 238, 0.06) inset;
+    --shadow-card: 0 12px 40px -20px rgba(0, 0, 0, 0.85);
+    --shadow-deep: 0 24px 80px -32px rgba(0, 0, 0, 0.9),
+                   0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
+
+    /* Glass + reveal motion (landing) */
+    --blur-glass: 18px;
+    --motion-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+    --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }

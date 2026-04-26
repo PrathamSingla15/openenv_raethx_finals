@@ -12,6 +12,7 @@ Endpoints (provided by ``openenv.core.env_server.http_server.create_app``):
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -36,6 +37,47 @@ app = create_app(
     env_name="tradebench",
     max_concurrent_envs=10,
 )
+
+
+# Mount the canonical PNG figures from docs/figures/ at /figures so the
+# Gradio HTML cards can <img src="/figures/foo.png">. Registered before the
+# Gradio catch-all at "/" so the explicit mount wins.
+def _mount_figures(app):  # noqa: ANN001
+    from fastapi.staticfiles import StaticFiles
+
+    candidates = [
+        Path(__file__).resolve().parent.parent / "docs" / "figures",  # repo layout
+        Path("/app/env/docs/figures"),  # baked path inside the HF Space image
+        Path("/app/docs/figures"),
+    ]
+    for path in candidates:
+        if path.is_dir():
+            app.mount("/figures", StaticFiles(directory=str(path)), name="figures")
+            logger.info("Mounted /figures from %s", path)
+            return
+    logger.warning("No docs/figures directory found; figure embeds will 404")
+
+
+# Mount the UI's loose static assets (motion.js etc.) at /ui-static. Gradio
+# inlines our CSS via the theme's NEON_CSS string but won't serve sibling JS,
+# so the landing's reveal/parallax script needs an explicit static mount.
+def _mount_ui_static(app):  # noqa: ANN001
+    from fastapi.staticfiles import StaticFiles
+
+    candidates = [
+        Path(__file__).resolve().parent / "ui" / "static",  # repo layout
+        Path("/app/env/server/ui/static"),  # baked path inside the HF Space image
+    ]
+    for path in candidates:
+        if path.is_dir():
+            app.mount("/ui-static", StaticFiles(directory=str(path)), name="ui_static")
+            logger.info("Mounted /ui-static from %s", path)
+            return
+    logger.warning("No server/ui/static directory found; landing motion.js will 404")
+
+
+_mount_figures(app)
+_mount_ui_static(app)
 
 
 # Backwards compatibility: the previous deployment served the UI at /web.

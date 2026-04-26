@@ -11,8 +11,14 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
-artifacts/
-datasets/
+# Ship just what the landing's interactive Plotly figures need:
+# - artifacts/runs/ → load_model_iters, replay_reward_components
+# - datasets/catalog/sample-v2/daily_bars/part-000.parquet → equal_weight_bnh_series
+# Excluding datasets/real-data/: the runtime env code falls back to package-bundled
+# data when datasets/real-data/ is absent. Including it triggers a different code
+# path (_resolve_real_data_dir) that expects a stricter on-disk layout and 500s on
+# /reset; the package fallback is what the prior deployment used.
+datasets/real-data/
 .idea/
 .vscode/
 .cursor/

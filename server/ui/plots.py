@@ -19,6 +19,7 @@ from scripts.visualize.data_loader import (
     MODEL_RUNS,
     PROJECT_ROOT,
     IterRow,
+    equal_weight_bnh_series,
     load_action_counts,
     load_advance_day_rows,
     load_model_iters,
@@ -551,6 +552,133 @@ def reward_recipe() -> go.Figure:
     return fig
 
 
+# ---------- Plot 7: per-iter equity curves vs B&H ----------
+
+
+# Sequential warm-to-cool palette mirroring viz_g_equity_curves_all.
+_EQUITY_PALETTE = [
+    "#c62828",  # red, baseline
+    "#ef6c00",  # orange
+    "#f9a825",  # amber
+    "#689f38",  # light green
+    "#388e3c",  # green
+    "#1b5e20",  # dark green, final
+]
+
+
+def _equity_palette_for(n: int) -> list[str]:
+    """Sample n colors evenly from the warm-to-cool palette."""
+    if n <= 1:
+        return [_EQUITY_PALETTE[0]]
+    if n >= len(_EQUITY_PALETTE):
+        return _EQUITY_PALETTE[: n] if n <= len(_EQUITY_PALETTE) else _EQUITY_PALETTE
+    step = (len(_EQUITY_PALETTE) - 1) / (n - 1)
+    return [_EQUITY_PALETTE[round(i * step)] for i in range(n)]
+
+
+def _equity_series(run_dir):  # noqa: ANN001
+    rows = load_advance_day_rows(run_dir)
+    if not rows:
+        return [], [], []
+    values = [float(r["portfolio_value"]) for r in rows]
+    dates = [r["current_date"] for r in rows]
+    return list(range(len(rows))), values, dates
+
+
+def equity_curves(model_id: str = QWEN_ID) -> go.Figure:
+    """Per-iteration portfolio equity vs equal-weight B&H reference.
+
+    Mirrors the static ``equity_curves_all_iters[*].png`` from
+    ``scripts/visualize/viz_g_equity_curves_all.py`` but interactive: hover
+    surfaces date + value + iter ROI per bar.
+    """
+    rows = _completed(load_model_iters(model_id))
+    if len(rows) < 2:
+        return go.Figure()
+
+    palette = _equity_palette_for(len(rows))
+
+    # B&H reference is computed from the longest-running iter's dates.
+    longest = max(rows, key=lambda r: len(load_advance_day_rows(r.run_dir)))
+    _, _, ref_dates = _equity_series(longest.run_dir)
+    try:
+        bnh = equal_weight_bnh_series(ref_dates) if ref_dates else []
+    except Exception:
+        bnh = []
+
+    fig = go.Figure()
+
+    if bnh:
+        bnh_pct = [(v / bnh[0] - 1) * 100 for v in bnh]
+        fig.add_trace(
+            go.Scatter(
+                x=list(range(len(bnh))),
+                y=bnh,
+                customdata=list(zip(ref_dates, bnh_pct)),
+                mode="lines",
+                name=f"equal-weight B&H · {bnh_pct[-1]:+.2f}%",
+                line=dict(color="#0d47a1", width=2.4, dash="dash"),
+                hovertemplate=(
+                    "<b>equal-weight B&H</b><br>"
+                    "bar %{x} · %{customdata[0]}<br>"
+                    "value: <b>%{y:,.0f}</b><br>"
+                    "return: <b>%{customdata[1]:+.2f}%%</b><extra></extra>"
+                ),
+            )
+        )
+
+    n_rows = len(rows)
+    for i, row in enumerate(rows):
+        x, y, dates = _equity_series(row.run_dir)
+        if not y:
+            continue
+        is_final = i == n_rows - 1
+        is_baseline = i == 0
+        color = palette[i]
+        width = 3.2 if is_final else (2.2 if is_baseline else 1.8)
+        dash = "dash" if is_baseline else "solid"
+        opacity = 1.0 if (is_final or is_baseline) else 0.85
+
+        if is_baseline:
+            label = f"baseline (iter 0) · {row.roi_pct:+.2f}%"
+        elif is_final:
+            label = f"iter {row.iter} ★ · {row.roi_pct:+.2f}%"
+        else:
+            label = f"iter {row.iter} · {row.roi_pct:+.2f}%"
+
+        pct = [(v / y[0] - 1) * 100 for v in y]
+        fig.add_trace(
+            go.Scatter(
+                x=x,
+                y=y,
+                customdata=list(zip(dates, pct)),
+                mode="lines",
+                name=label,
+                line=dict(color=color, width=width, dash=dash),
+                opacity=opacity,
+                hovertemplate=(
+                    f"<b>iter {row.iter}{' ★' if is_final else ''}</b><br>"
+                    "bar %{x} · %{customdata[0]}<br>"
+                    "value: <b>%{y:,.0f}</b><br>"
+                    "return: <b>%{customdata[1]:+.2f}%%</b><extra></extra>"
+                ),
+            )
+        )
+
+    layout = _base_layout(
+        title=(
+            f"Equity curves across all iterations  ·  {MODEL_LABELS[model_id]}"
+        ),
+        height=460,
+    )
+    layout["xaxis"]["title"]["text"] = "bar (test episode)"
+    layout["yaxis"]["title"]["text"] = "portfolio value"
+    layout["yaxis"]["tickformat"] = ",.0f"
+    layout["hovermode"] = "x unified"
+    fig.update_layout(**layout)
+    return fig
+
+
 __all__ = [
     "reward_trajectory",
     "roi_score_combined",
@@ -558,6 +686,7 @@ __all__ = [
     "action_mix",
     "reward_components",
     "reward_recipe",
+    "equity_curves",
     "QWEN_ID",
     "GLM_ID",
 ]
