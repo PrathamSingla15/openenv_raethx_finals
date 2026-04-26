@@ -81,21 +81,26 @@ _LANDING_HTML = """
 }
 .tb-intro-eyebrow .is-accent { color: var(--accent); }
 .tb-intro-title {
-    font-family: var(--type-body);
-    font-weight: 700;
-    font-size: clamp(2.8rem, 7.2vw, 5.6rem);
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    font-family: "Fraunces", "EB Garamond", "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 500 !important;
+    font-style: normal !important;
+    font-variation-settings: "opsz" 144, "WONK" 1, "SOFT" 0 !important;
+    font-size: clamp(3rem, 8vw, 6.4rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
     color: var(--ink);
     margin: 0 0 28px;
     max-width: 18ch;
 }
 .tb-intro-title .tb-accent {
     color: var(--ink);
+    font-style: italic !important;
+    font-weight: 500 !important;
     text-decoration: underline;
     text-decoration-color: var(--accent);
-    text-decoration-thickness: 5px;
+    text-decoration-thickness: 4px;
     text-underline-offset: 10px;
+    text-decoration-skip-ink: none;
 }
 .tb-intro-rule {
     height: 1px;
