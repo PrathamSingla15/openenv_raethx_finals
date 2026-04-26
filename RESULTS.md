@@ -1,17 +1,17 @@
-# TradeBench — Reflection-loop demo results
+# TradeBench: reflection-loop demo results
 
-This document is the long-form companion to the [README "Results" section](README.md#3-results--reflection-loop-demo-5-iterations).
+This document is the long-form companion to the [README "Results" section](README.md#3-results-reflection-loop-optimization).
 
 It walks through:
 
 1. The setup we ran
-2. **Qwen3-32B (Groq)** — full 5-iter trajectory, with the Opus diagnoses that drove each prompt edit
+2. **Qwen3-32B (Groq).** Full 5-iter trajectory, with the Opus diagnoses that drove each prompt edit
 3. Per-bar performance vs equal-weight buy-and-hold (the most diagnostic plot)
-4. What the agent learned to do differently — action mix and reward-component evolution
-5. **GLM-5.1 (Together)** — parallel run, currently in flight
-6. Comparative analysis (Qwen vs GLM) — gated until GLM completes
-7. The reflection mechanism — prompt evolution
-8. Reproducibility — exact command lines
+4. What the agent learned to do differently: action mix and reward-component evolution
+5. **GLM-5.1 (Together).** 3-iter comparative trajectory
+6. Comparative analysis (Qwen vs GLM)
+7. The reflection mechanism: prompt evolution
+8. Reproducibility: exact command lines
 
 ---
 
@@ -26,15 +26,15 @@ Two open-weights models, identical reflection harness, identical evaluation:
 | Initial capital | $100,000 |
 | Reward function | 7-component convex composite × compliance gate, all in [0, 1] |
 | Reflector | Anthropic Claude Opus 4.7 via OpenRouter, 1.10× length-budget cap on prompt edits |
-| Iterations | 5 |
+| Iterations | Qwen3-32B: 5. GLM-5.1: 3. |
 | Per-bar gate | `record_decision` mandatory before every `advance_day` (server-enforced) |
 | Score reported | `score_normalized` = mean per-bar reward over 119 bars (∈ [0, 1] by construction) |
 
-**Baseline agent prompt** is the canonical TradeBench system prompt with the 5-step daily protocol (Observe → Model → Size → Place orders → Advance), the rules-clause anti-memorization paragraph, and a worked example. Each reflection iteration produces a *surgical edit* of the prior prompt — no rewrites.
+**Baseline agent prompt** is the canonical TradeBench system prompt with the 5-step daily protocol (Observe → Model → Size → Place orders → Advance), the rules-clause anti-memorization paragraph, and a worked example. Each reflection iteration produces a *surgical edit* of the prior prompt; no rewrites.
 
 ---
 
-## 2. Qwen3-32B (Groq) — 5 reflection iterations
+## 2. Qwen3-32B (Groq): 5 reflection iterations
 
 ![Reward evolution](docs/figures/reward_evolution.png)
 
@@ -44,28 +44,28 @@ Two open-weights models, identical reflection harness, identical evaluation:
 
 | Iter | Score | ROI | place_order | sandbox_exec | view_* |
 |---:|---:|---:|---:|---:|---:|
-| 0 — baseline | 0.6155 | +2.78% | 4 | 22 | 6 |
-| 1 — reflection | 0.6214 | +4.72% | 6 | 29 | 23 |
-| 2 — reflection | 0.6306 | +3.88% | 10 | 6 | 17 |
-| 3 — reflection | 0.6381 | +6.31% | 11 | 1 | 32 |
-| 4 — reflection | 0.6476 | +6.96% | 14 | 6 | 32 |
-| **5 — reflection** | **0.6584** | **+9.89%** | **12** | **10** | **31** |
+| 0 (baseline) | 0.6155 | +2.78% | 4 | 22 | 6 |
+| 1 (reflection) | 0.6214 | +4.72% | 6 | 29 | 23 |
+| 2 (reflection) | 0.6306 | +3.88% | 10 | 6 | 17 |
+| 3 (reflection) | 0.6381 | +6.31% | 11 | 1 | 32 |
+| 4 (reflection) | 0.6476 | +6.96% | 14 | 6 | 32 |
+| **5 (reflection)** | **0.6584** | **+9.89%** | **12** | **10** | **31** |
 
-Score moved **monotonically** from baseline through iter 5 (+4.3 pp on the [0,1] scale), and ROI grew **3.6×** in absolute terms (+2.78% → +9.89%). Place-order count tripled. Sandbox usage spiked early (Opus told the agent to actually compute) then settled — once the agent built its mental model in iters 1–2, it converged on a more decisive policy.
+Score moved **monotonically** from baseline through iter 5 (+4.3 pp on the [0,1] scale), and ROI grew **3.6×** in absolute terms (+2.78% → +9.89%). Place-order count tripled. Sandbox usage spiked early (Opus told the agent to actually compute) then settled. Once the agent built its mental model in iters 1-2, it converged on a more decisive policy.
 
-### Iter 1 — Opus diagnosis
+### Iter 1: Opus diagnosis
 
 > *"After bar 1 the agent placed exactly ONE order (60 shares tier_a01) and then never placed another order for the remaining 119 bars despite recording 'diversified_long' / 'momentum_long' decisions naming 3-5 convictions each bar — the record_decision step has become a substitute for trading, leaving the portfolio severely under-exposed (60% single-name instead of the committed 80% 5-asset sharpe-weighted basket)."*
 
 **Surgical edit:** §4.2 record_decision clarification ("logged top_convictions are intent only; subsequent place_order calls must translate them into position gaps, not be skipped"); §5 step-4 from "ZERO OR MORE times" to a conditional trigger on conviction-vs-current-weight gap.
 
-### Iter 5 — Opus diagnosis
+### Iter 5: Opus diagnosis
 
 > *"After the initial build on bar 1 the agent essentially never re-checks the gap between its recorded 0.60 intended_exposure and its actual ~0.20 gross — it records new decisions and advances for 100+ bars without ever firing the remaining build legs, yielding only 14 place_orders over 119 bars."*
 
-**Surgical edit:** §5 step-4 strengthened to also cover bars 2–3 when the initial build is incomplete; §7.5 named the exact failure pattern ("two legs filled out of five committed") so the agent could recognize itself doing it.
+**Surgical edit:** §5 step-4 strengthened to also cover bars 2-3 when the initial build is incomplete; §7.5 named the exact failure pattern ("two legs filled out of five committed") so the agent could recognize itself doing it.
 
-This pattern — Opus naming the *specific behavioral failure* and the prompt absorbing a one-paragraph patch — repeated across all 5 iterations.
+This pattern, Opus naming the *specific behavioral failure* and the prompt absorbing a one-paragraph patch, repeated across all 5 iterations.
 
 ---
 
@@ -76,7 +76,7 @@ This pattern — Opus naming the *specific behavioral failure* and the prompt ab
 The single most informative plot in this report. Each line is the agent's **cumulative log-alpha relative to a do-nothing equal-weight buy-and-hold portfolio** of the same 10 assets. Negative = agent is behind B&H; positive = agent is beating B&H.
 
 - **Baseline (red dashed)**: bled alpha consistently from bar ~25 onward. By bar 65 the agent was −13 log-points below B&H, and by bar 119 it was still −12 points down. The agent took risk early then stopped trading; B&H grew while the agent's static, under-exposed book lagged.
-- **Final iter 5 (green solid)**: tracked B&H more closely through bars 0–40, troughed at −6 around bar 65, and *recovered* in the back half of the episode — cutting the alpha gap roughly in half by bar 119 (−5 vs −12).
+- **Final iter 5 (green solid)**: tracked B&H more closely through bars 0-40, troughed at −6 around bar 65, and *recovered* in the back half of the episode, cutting the alpha gap roughly in half by bar 119 (−5 vs −12).
 
 The reflection loop did not turn the agent into an alpha-generating machine on this data slice (it still loses to B&H), but it visibly closed the gap in a way that's only possible if the agent is actually executing on its recorded convictions rather than freezing.
 
@@ -88,9 +88,9 @@ The reflection loop did not turn the agent into an alpha-generating machine on t
 
 Two clear patterns:
 
-- **place_order: 4 → 12 (3.0× growth).** This is the headline behavioral change. Every reflection iteration after iter 0 increased order count except the last (iter 5 dipped from 14 → 12 — the agent learned to be selective, not just busy).
-- **sandbox_exec: 22 → 29 → 6 → 1 → 6 → 10.** The agent front-loaded computation early ("understand the universe"), then collapsed sandbox usage as it learned to trust its initial mental model and act decisively. By iter 5 it was running ~10 sandbox calls per episode — enough to validate alpha hypotheses, not so many that it analysis-paralyzed.
-- **view_* (any state-inspection view): 6 → 31.** Big jump from iter 0 to iter 1 and stable thereafter — Opus told the agent to actually look at portfolio state before deciding, and the agent obeyed.
+- **place_order: 4 → 12 (3.0× growth).** This is the headline behavioral change. Every reflection iteration after iter 0 increased order count except the last (iter 5 dipped from 14 → 12; the agent learned to be selective, not just busy).
+- **sandbox_exec: 22 → 29 → 6 → 1 → 6 → 10.** The agent front-loaded computation early ("understand the universe"), then collapsed sandbox usage as it learned to trust its initial mental model and act decisively. By iter 5 it was running ~10 sandbox calls per episode: enough to validate alpha hypotheses, not so many that it analysis-paralyzed.
+- **view_* (any state-inspection view): 6 → 31.** Big jump from iter 0 to iter 1 and stable thereafter. Opus told the agent to actually look at portfolio state before deciding, and the agent obeyed.
 
 ![Reward component decomposition](docs/figures/reward_components_baseline_vs_final.png)
 
@@ -106,51 +106,82 @@ Replaying the trajectories through the live convex composite reward function and
 | `c_diversity` (HHI) | 0.889 | 0.889 | ±0.000 |
 | `c_consistency` (downside semi-vol of bar-alpha) | 0.665 | 0.700 | **+0.035** |
 
-The agent improved `c_alpha`, `c_return`, and `c_consistency` in roughly equal measure — exactly the components that move *only* when the policy actually trades into its convictions. It paid for that with a small `c_drawdown` cost (more positions = more interim mark-to-market noise), which is the right trade. The flat components (solvency, efficiency, diversity) were already at or near 1.0 — there was no headroom to move them.
+The agent improved `c_alpha`, `c_return`, and `c_consistency` in roughly equal measure: exactly the components that move *only* when the policy actually trades into its convictions. It paid for that with a small `c_drawdown` cost (more positions = more interim mark-to-market noise), which is the right trade. The flat components (solvency, efficiency, diversity) were already at or near 1.0; there was no headroom to move them.
 
 > Note: `c_efficiency`, `c_diversity`, and `c_drawdown` use heuristic per-bar inputs in the replay (turnover ratio = 0.05, HHI = 0.20) since the v1 trajectory.jsonl format doesn't capture those directly. The deltas are within expected noise for those columns; the alpha/return/consistency deltas are exact.
 
 ---
 
-## 5. GLM-5.1 (Together) — 5 iterations (in progress)
+## 5. GLM-5.1 (Together): 3 reflection iterations
 
-The same reflection harness is currently running on `zai-org/GLM-5.1` via Together AI. As of writing:
+The same reflection harness was run on `zai-org/GLM-5.1` via Together AI for three iterations as a comparative trajectory.
 
-| Iter | Status | Score | ROI |
-|---:|---|---:|---:|
-| 0 — baseline | complete | 0.6243 | +2.83% |
-| 1 — reflection | **in flight** | TBD | TBD |
+| Iter | Score | ROI | place_order | sandbox_exec | view_* |
+|---:|---:|---:|---:|---:|---:|
+| 0 (baseline) | 0.6243 | +2.83% | 2 | 81 | 88 |
+| 1 (reflection) | 0.6432 | +4.39% | 6 | 44 | 110 |
+| 2 (reflection) | 0.6382 | +3.72% | 6 | 19 | 182 |
+| **3 (reflection)** | **0.6453** | **+4.69%** | **6** | **41** | **148** |
 
-GLM's baseline already exhibits a very different policy pattern from Qwen's:
+![GLM ROI and score per iter](docs/figures/reward_roi_combined_glm.png)
 
-- **place_order = 2** (vs Qwen's 4) — even more reluctant to trade.
-- **sandbox_exec = 81** (vs Qwen's 22) — heavy "thinking" in the sandbox before acting.
-- **view_* = 88** (vs Qwen's 6) — heavy state observation.
+![GLM per-bar log-alpha vs B&H](docs/figures/bar_alpha_vs_bnh_glm.png)
 
-So GLM has a *think-first-act-rarely* pattern; Qwen has a *act-quickly-think-rarely* pattern. Whether reflection drives both toward the same converged behavior, or they end up in different attractors, will be the most interesting comparison once GLM finishes.
+GLM's baseline pattern was strikingly different from Qwen's:
 
-This section will be updated when the GLM 5-iter run completes.
+- **place_order = 2** (vs Qwen's 4): more reluctant to trade.
+- **sandbox_exec = 81** (vs Qwen's 22): heavy analysis before acting.
+- **view_* = 88** (vs Qwen's 6): heavy state observation.
+
+GLM's policy was *think-first-act-rarely*; Qwen's was *act-quickly-think-rarely*. Despite opposite starting points, the first reflection iteration moved both models in the same direction (more orders, more selective sandbox use, more frequent state observation). GLM's iter 1 alone was a +0.019 jump (3× larger than Qwen's iter 1) because GLM had more headroom to recover from its under-trading baseline. Iter 2 regressed slightly (−0.005); iter 3 recovered and set a new GLM best at 0.6453 (+4.69% ROI).
+
+![GLM action mix evolution](docs/figures/action_mix_evolution_glm.png)
+
+The action mix tells the GLM-specific story. `place_order` jumped 2 → 6 in iter 1 and stayed flat thereafter (the reflector dialled in the order count but didn't push it higher). `sandbox_exec` collapsed from 81 → 19 across iters 1-2 (model became less analysis-paralytic), then climbed back to 41 in iter 3 (model re-engaged with the data after iter 2's exposure dropped). `view_*` doubled from 88 → 182 by iter 2 and settled at 148 in iter 3 (much more frequent portfolio inspection).
+
+![GLM reward components](docs/figures/reward_components_baseline_vs_final_glm.png)
+
+The reward-component view shows GLM gained mostly on `c_alpha` (+0.012) and `c_return` (+0.008). Smaller deltas than Qwen's (+0.033 / +0.023), consistent with GLM's smaller overall score gain (+0.021 vs Qwen's +0.043) and its 3-iter trajectory vs Qwen's 5.
 
 ---
 
-## 6. Comparative analysis — Qwen vs GLM
+## 6. Comparative analysis: Qwen vs GLM
 
-> Gated on GLM completion. To be filled with: best score per model, place_order count delta, sandbox_exec usage delta, biggest single-iter jump per model, prompt-evolution diff overlap, per-bar alpha-vs-B&H curves overlaid.
+![Combined reward evolution](docs/figures/reward_evolution.png)
+
+| Metric | Qwen3-32B (Groq) | GLM-5.1 (Together) |
+|---|---:|---:|
+| Iterations completed | 5 | 3 |
+| Baseline score | 0.6155 | 0.6243 |
+| Best score | **0.6584** (iter 5) | **0.6453** (iter 3) |
+| Total score gain | +0.043 | +0.021 |
+| Baseline ROI | +2.78% | +2.83% |
+| Best ROI | +9.89% | +4.69% |
+| Total ROI gain | +7.11 pp (3.6× absolute) | +1.86 pp (1.7× absolute) |
+| Baseline `place_order` | 4 | 2 |
+| Best `place_order` | 14 (iter 4) | 6 (iter 1, held) |
+| Baseline `sandbox_exec` | 22 | 81 |
+| Final `sandbox_exec` | 10 | 41 |
+| Baseline `view_*` | 6 | 88 |
+| Final `view_*` | 31 | 148 |
+| Trajectory shape | Monotone climb | Climb → small dip → recover |
+
+Three observations from the head-to-head:
+
+1. **The same loop produces different optimization curves on different base models.** Qwen converged smoothly across 5 iterations with no regression. GLM had a small iter-1-to-iter-2 dip before recovering. This is consistent with the underlying capability gap: stronger instruction-following lets the loop convert each reflector edit into a behavioral improvement more reliably.
+2. **Bigger baseline pathology, bigger first-iter jump.** GLM's iter-1 score gain of +0.019 was about 3× Qwen's iter-1 gain of +0.006, because GLM had a more egregious starting policy (2 orders vs 4, 88 view_* vs 6) for the reflector to call out.
+3. **Two models, opposite starting patterns, convergent end states.** Qwen started act-quickly-think-rarely (4 orders, 22 sandbox_exec, 6 view_*); GLM started think-first-act-rarely (2 orders, 81 sandbox_exec, 88 view_*). Reflection drove both toward more orders, more selective sandbox usage relative to baseline, and dramatically more state observation. That convergence from opposite starting points is the strongest signal that the loop is finding something real about the env's success conditions, not patching idiosyncratic quirks of one model.
 
 ---
 
 ## 7. Reflection mechanism
 
-![System-prompt evolution](docs/figures/prompt_evolution.png)
+The baseline system prompt is 399 lines (after wrap). The iter-5 prompt is 445 lines, well within the 1.10× length cap. Across the 5 iterations the diff is concentrated in two areas:
 
-Top card is the **baseline system prompt** (399 lines after wrap). Bottom is the **iter-5 prompt** (445 lines). Red regions in the top card are sections that were removed or rewritten across the 5 reflections; green regions in the bottom card are the additions.
+- **§5 PER-BAR PROTOCOL step 4.** Initially "place_order ZERO OR MORE times". After 5 reflections, this became "If ANY named conviction still has current weight materially below its target (e.g. gap > ~2% of portfolio), issue a place_order this bar; only skip orders when current positions already approximate the recorded top_convictions or when the regime is genuinely flat."
+- **§7.5 COMMON MISTAKES.** Gained explicit named patterns ("two legs filled out of five committed", "recording a decision naming convictions but never sizing them is a form of standing still") so the agent could pattern-match its own behavior against known failure modes.
 
-The diff is concentrated in two areas:
-
-- **§5 PER-BAR PROTOCOL step 4** — initially "place_order ZERO OR MORE times". After 5 reflections, this became "If ANY named conviction still has current weight materially below its target (e.g. gap > ~2% of portfolio), issue a place_order this bar; only skip orders when current positions already approximate the recorded top_convictions or when the regime is genuinely flat."
-- **§7.5 COMMON MISTAKES** — gained explicit named patterns ("two legs filled out of five committed", "recording a decision naming convictions but never sizing them is a form of standing still") so the agent could pattern-match its own behavior against known failure modes.
-
-The compliance clause, anti-memorization rules, and worked example were left almost untouched across all 5 reflections — Opus correctly identified that those parts were already doing their job and didn't waste its 1.10× length budget on them.
+The compliance clause, anti-memorization rules, and worked example were left almost untouched across all 5 reflections; Opus correctly identified that those parts were already doing their job and didn't waste its 1.10× length budget on them.
 
 ---
 
@@ -163,8 +194,8 @@ uv run uvicorn server.app:app --host 0.0.0.0 --port 8000 &
 
 # 5-iter reflection run
 ENV_URL="http://127.0.0.1:8000" \
-HF_TOKEN="<your hf token — needed for the Inference Provider>" \
-OPENROUTER_API_KEY="<your openrouter key — for the Opus reflector>" \
+HF_TOKEN="<your hf token, needed for the Inference Provider>" \
+OPENROUTER_API_KEY="<your openrouter key, for the Opus reflector>" \
 MODEL_NAME="qwen/qwen3-32b:groq" \
 TRADEBENCH_DATASET_ROOT=$(pwd)/datasets \
 uv run python scripts/run_reflection_loop.py --iters 5 \
@@ -181,9 +212,9 @@ uv run python -m scripts.visualize.render_all
 
 Reflector model is set in `reflection.py` (`DEFAULT_REFLECTION_MODEL = "anthropic/claude-opus-4.7"`); override with `--reflection-model`. Each iteration writes:
 
-- `artifacts/reflection_<ts>/iter_NN__reflection/meta_prompt.txt` — the prompt sent to the reflector
-- `artifacts/reflection_<ts>/iter_NN__reflection/reflector_raw_response.txt` — Opus's full STEP 0/1/2 + new prompt
-- `artifacts/reflection_<ts>/iter_NN__reflection/new_system_prompt.txt` — the parsed system prompt fed to the next rollout
-- `artifacts/runs/<ts>__...__iterNN_reflect/{train,test}/{trajectory.jsonl,summary.json,system_prompt.txt}` — the rollout itself
+- `artifacts/reflection_<ts>/iter_NN__reflection/meta_prompt.txt`: the prompt sent to the reflector
+- `artifacts/reflection_<ts>/iter_NN__reflection/reflector_raw_response.txt`: Opus's full STEP 0/1/2 + new prompt
+- `artifacts/reflection_<ts>/iter_NN__reflection/new_system_prompt.txt`: the parsed system prompt fed to the next rollout
+- `artifacts/runs/<ts>__...__iterNN_reflect/{train,test}/{trajectory.jsonl,summary.json,system_prompt.txt}`: the rollout itself
 
-All artifacts referenced in this document live under `artifacts/` in this repo — pull them, replay them, audit them.
+All artifacts referenced in this document live under `artifacts/` in this repo. Pull them, replay them, audit them.
