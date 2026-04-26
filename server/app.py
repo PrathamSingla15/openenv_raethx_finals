@@ -38,8 +38,28 @@ app = create_app(
 )
 
 
+# Backwards compatibility: the previous deployment served the UI at /web.
+# Register this BEFORE the Gradio mount at / so the explicit handler wins
+# over the catch-all mount.
+@app.get("/web")
+@app.get("/web/")
+async def _web_legacy_redirect():
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse(url="/", status_code=308)
+
+
 # Lazy gradio import keeps the FastAPI surface up even if gradio fails to load
 # (partial install, container troubleshooting).
+#
+# The Gradio UI mounts at ``/`` rather than ``/web`` because the HF Spaces
+# reverse proxy strips trailing slashes from Location headers, which turns the
+# FastAPI ``/web`` -> ``/web/`` slash redirect into a 307 loop (the symptom
+# observed pre-fix: every ``GET /web`` logged a 307 and the browser never
+# resolved). Mounting at root sidesteps the slash-redirect entirely. OpenEnv
+# routes (/reset, /step, /state, /schema, /health, /ws, /docs, /openapi.json)
+# are registered before the mount so they keep precedence over the Gradio
+# catch-all.
 try:
     import gradio as gr
 
@@ -47,7 +67,7 @@ try:
 
     _gradio_app = build_ui()
     # Gradio 6 reads ``theme`` / ``css`` at mount time, not at Blocks construction.
-    _mount_kwargs: dict = {"path": "/web"}
+    _mount_kwargs: dict = {"path": "/"}
     import inspect as _inspect
     _mount_sig = _inspect.signature(gr.mount_gradio_app).parameters
     if "theme" in _mount_sig:
@@ -56,21 +76,21 @@ try:
         _mount_kwargs["css"] = NEON_CSS
     app = gr.mount_gradio_app(app, _gradio_app, **_mount_kwargs)
     _gradio_mounted = True
-    logger.info("Mounted Gradio UI at /web")
+    logger.info("Mounted Gradio UI at /")
 except Exception as exc:  # pragma: no cover - mount failures should not crash the API
     _gradio_mounted = False
     logger.warning("Gradio web UI not mounted: %s", exc)
 
 
-@app.get("/")
-async def root():
-    """Redirect to /web (UI) when mounted, /docs otherwise."""
+# Fallback root handler when Gradio failed to mount: send the user to the
+# OpenAPI docs so the API surface is still discoverable.
+if not _gradio_mounted:
 
-    from fastapi.responses import RedirectResponse
+    @app.get("/")
+    async def _root_fallback():
+        from fastapi.responses import RedirectResponse
 
-    if _gradio_mounted:
-        return RedirectResponse(url="/web/")
-    return RedirectResponse(url="/docs")
+        return RedirectResponse(url="/docs")
 
 
 def main(host: str = "0.0.0.0", port: int = 8000) -> None:

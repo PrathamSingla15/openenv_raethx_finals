@@ -253,7 +253,7 @@ curl http://localhost:8000/health
 # -> {"status":"healthy"}
 
 # Open the UI
-open http://localhost:8000/web
+open http://localhost:8000/
 ```
 
 ### Local development (Python)
@@ -265,7 +265,7 @@ uv sync --extra openai
 
 # Run the OpenEnv server locally
 uv run uvicorn server.app:app --host 0.0.0.0 --port 8000 --reload
-# -> http://localhost:8000/web   Gradio UI with 7 tabs
+# -> http://localhost:8000/      Gradio UI with 7 tabs
 # -> http://localhost:8000/docs  OpenAPI / Swagger
 ```
 

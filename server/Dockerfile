@@ -48,11 +48,13 @@ COPY --from=builder /app/env/README.md /app/README.md
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/env:$PYTHONPATH"
-# Intentionally NOT setting ENABLE_WEB_INTERFACE=true — openenv-core's
-# default Gradio UI would mount at /web first and shadow our custom UI.
-# server/app.py mounts ``server.ui.build_ui()`` at /web with our charcoal
-# theme + NEON_CSS; the env's create_app returns a plain FastAPI app
+# Intentionally NOT setting ENABLE_WEB_INTERFACE=true. openenv-core's default
+# Gradio UI would compete for the root mount and shadow our custom UI.
+# server/app.py mounts ``server.ui.build_ui()`` at / with our charcoal theme
+# + NEON_CSS; the env's create_app returns a plain FastAPI app
 # (ENABLE_WEB_INTERFACE defaults to false) so our mount is the only one.
+# A legacy /web -> / redirect (308) preserves backwards compatibility for
+# anyone holding the previous URL.
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1

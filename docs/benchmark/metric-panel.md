@@ -50,7 +50,7 @@ fields, derived purely from the ledger event log:
 - `sessions`: per-session detail including exposure, turnover, costs, and
   realized position weights
 
-These flow into the human-readable Gradio panel at `/web/`.
+These flow into the human-readable Gradio panel at `/`.
 
 ## Verifier output
 
