@@ -47,7 +47,7 @@ def build_ui() -> gr.Blocks:
         gr.HTML(_MOTION_SCRIPT)
 
         with gr.Tabs():
-            with gr.Tab("Trajectory", id="trajectory"):
+            with gr.Tab("Introduction", id="introduction"):
                 overview.render()
             with gr.Tab("Reflection Loop", id="reflection_loop"):
                 results.render()
