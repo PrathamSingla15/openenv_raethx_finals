@@ -1624,3 +1624,116 @@ footer { display: none !important; }
     .tb-final-cta { padding: var(--space-6) 0 var(--space-5); }
     .tb-defense-row { grid-template-columns: 48px 1fr; gap: var(--space-3); }
 }
+
+
+/* ============================================================
+   CLEAN OVERRIDE: simpler aesthetic per latest direction
+   - All titles in DM Sans (no Fraunces serif)
+   - No grey-faded text in titles, solid white throughout
+   - Emphasis via cyan underline, not italic + color shift
+   - Decorative halo dropped
+   - Sticky nav banner removed (top-level numbered anchors)
+   ============================================================ */
+
+.tb-landing-title,
+.tb-numbered-title,
+.tb-final-cta-title,
+.tb-section-title,
+.tb-hero-title,
+.tb-header-title,
+.tb-card-title,
+.tb-link-title,
+.tb-stat-cell-value,
+.tb-metrics-val,
+.tb-quote {
+    font-family: var(--type-body) !important;
+    font-variation-settings: normal !important;
+    font-style: normal !important;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Section titles a touch lighter — keeps them clean, not bold-heavy */
+.tb-numbered-title,
+.tb-final-cta-title,
+.tb-landing-title {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+/* No more grey-ghost faded color in any title; show full-weight white. */
+.tb-landing-title .tb-faded,
+.tb-numbered-title .tb-faded,
+.tb-final-cta-title .tb-faded,
+.tb-section-title .tb-faded,
+.tb-hero-title .tb-faded,
+.tb-header-title .tb-faded,
+.tb-card-title .tb-faded {
+    color: var(--ink) !important;
+    font-weight: inherit !important;
+}
+
+/* Accent emphasis: cyan underline, NOT italic-colored. Replaces the old
+   pattern of italicizing & recoloring the accent word. */
+.tb-landing-title .tb-accent,
+.tb-numbered-title .tb-accent,
+.tb-final-cta-title .tb-accent,
+.tb-section-title .tb-accent,
+.tb-hero-title .tb-accent,
+.tb-header-title .tb-accent,
+.tb-card-title .tb-accent,
+.tb-quote .tb-accent {
+    color: var(--ink) !important;
+    font-style: normal !important;
+    font-weight: inherit !important;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 8px;
+    text-decoration-skip-ink: none;
+}
+
+/* Eyebrow style stays mono, but drop the heavy-letter-spacing on the
+   landing eyebrow for cleaner reading. */
+.tb-landing-eyebrow {
+    letter-spacing: 0.18em;
+}
+
+/* Quote: simple sans, lighter weight, indented rule. No italic. */
+.tb-quote {
+    font-style: normal !important;
+    font-weight: 500;
+    font-size: 1.18em;
+    line-height: 1.5;
+}
+
+/* Drop the decorative ambient halo; too busy for the new direction. */
+.tb-landing-halo { display: none !important; }
+
+/* Container background-image gradients off — solid black canvas. */
+.gradio-container {
+    background-image: none !important;
+}
+.gradio-container::before {
+    display: none !important;
+}
+
+/* No italic on .tb-numbered-sub em — use bold + underline accent instead. */
+.tb-numbered-sub em,
+.tb-landing-sub em,
+.tb-card-body em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+/* Reduce hover-state overlay variance; keep it minimal. */
+.tb-card,
+.tb-statcard,
+.tb-link-card,
+.tb-layer,
+.tb-stat-cell,
+.tb-metric,
+.tb-defense-row {
+    transition: background-color 200ms ease, border-color 200ms ease;
+}

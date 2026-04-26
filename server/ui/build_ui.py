@@ -23,46 +23,6 @@ from .tabs import (
 )
 from .theme import DARK_THEME, NEON_CSS
 
-# Sticky frosted nav. Lockup (left) + numbered anchors (center, ≥980px) +
-# cyan ghost CTA (right). Anchors point to numbered sections inside the
-# Trajectory tab; motion.js handles smooth-scroll. The "Get the code" CTA
-# is a real external link to the GitHub repo.
-_NAV_HTML = """
-<div class="tb-nav">
-    <div class="tb-nav-row">
-        <a class="tb-nav-lockup" href="#tb-section-hero" data-tb-tab="Trajectory">
-            TradeBench
-            <span class="tb-nav-lockup-mute">/ OpenEnv Theme 2</span>
-        </a>
-        <nav class="tb-nav-anchors" aria-label="Sections">
-            <a class="tb-nav-anchor" href="#tb-section-01" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">01</span>Problem
-            </a>
-            <a class="tb-nav-anchor" href="#tb-section-02" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">02</span>Environment
-            </a>
-            <a class="tb-nav-anchor" href="#tb-section-03" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">03</span>Reward
-            </a>
-            <a class="tb-nav-anchor" href="#tb-section-04" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">04</span>Defenses
-            </a>
-            <a class="tb-nav-anchor" href="#tb-section-05" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">05</span>Results
-            </a>
-            <a class="tb-nav-anchor" href="#tb-section-06" data-tb-tab="Trajectory">
-                <span class="tb-nav-anchor-num">06</span>Run&nbsp;it
-            </a>
-        </nav>
-        <a class="tb-nav-cta"
-           href="https://github.com/PrathamSingla15/openenv_raethx_finals"
-           target="_blank" rel="noreferrer">
-            Get&nbsp;the&nbsp;code&nbsp;<span aria-hidden="true">&rarr;</span>
-        </a>
-    </div>
-</div>
-"""
-
 # Landing motion.js loads from the FastAPI /ui-static mount. Defer keeps the
 # script non-blocking; the script is self-init via DOMContentLoaded.
 _MOTION_SCRIPT = """
@@ -84,7 +44,6 @@ def build_ui() -> gr.Blocks:
         blocks_kwargs["css"] = NEON_CSS
 
     with gr.Blocks(**blocks_kwargs) as app:
-        gr.HTML(_NAV_HTML)
         gr.HTML(_MOTION_SCRIPT)
 
         with gr.Tabs():
