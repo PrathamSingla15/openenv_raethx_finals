@@ -1,0 +1,13 @@
+{
+  "phase": "train",
+  "attempts_used": 1,
+  "max_attempts": 3,
+  "used_fallback": false,
+  "regime_label": "low_corr_positive_drift_tilted_long",
+  "intended_exposure": "1.00",
+  "uncertainty": "medium",
+  "edge_summary": "Long-only portfolio of 6 positive-Sharpe assets with near-zero pairwise correlations, tilted toward a03 (Sharpe 1.67, vol 0.0126) which dominates on risk-adjusted terms. Excluding a05/a06/a08/a09 due to Sharpe <0.25, extreme drawdowns, or negative drift. The low inter-asset correlation (max |ρ|≈0.18) means diversification benefit is real even in a concentrated book.",
+  "reasoning": "Weights are Sharpe-proportional with a03 capped at 0.30 to avoid single-name concentration beyond 30%. Rebalance weekly (every 5 bars) when any weight drifts >0.03 from target; on non-rebalance bars only trade if gap >0.05. Kill-switch: if portfolio drawdown from peak exceeds 15% reduce all target weights to 0.50 (half exposure); if drawdown exceeds 25% go flat. No position in a05 (Sharpe 0.25), a06 (Sharpe 0.04, max_dd -0.74), a08 (Sharpe -0.37), a09 (Sharpe -0.00, max_dd -1.10). Gross exposure target 1.00, no leverage. Sizing per leg uses floor(cash_alloc / approx_price) with residual cash swept on next rebalance.",
+  "carry_strategy_chars": 1105,
+  "study_packet_chars": 4202
+}

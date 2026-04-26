@@ -1,0 +1,28 @@
+{
+  "run_id": "20260426T070351Z__train-test__zai-org-glm-5-1-together__iter03_manual_fix",
+  "started_at": "2026-04-26T07:03:51.073003+00:00",
+  "ended_at": "2026-04-26T07:45:25.019701+00:00",
+  "model": "zai-org/GLM-5.1:together",
+  "tier_pair": "train_test",
+  "scores": {
+    "train": 1.0,
+    "test": 0.04691831537557567
+  },
+  "action_counts": {
+    "train": {
+      "record_decision": 1
+    },
+    "test": {
+      "sandbox_exec": 41,
+      "record_decision": 138,
+      "place_order": 6,
+      "advance_day": 120,
+      "view_portfolio": 148
+    }
+  },
+  "llm_call_counts": {
+    "train": 3,
+    "test": 453
+  },
+  "notes": []
+}
