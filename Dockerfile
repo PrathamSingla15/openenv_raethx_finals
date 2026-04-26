@@ -48,6 +48,12 @@ COPY --from=builder /app/env/README.md /app/README.md
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/env:$PYTHONPATH"
+# Pin the dataset root explicitly. The installed tradebench wheel's
+# `_project_root()` resolves to /app/.venv/lib/python3.12 (wrong: it's
+# the venv's parent, not the repo). Setting this env var skips that
+# broken resolver in resolve_settings() and ensures the env reads from
+# the catalog + real-data shipped under /app/env/datasets/.
+ENV TRADEBENCH_DATASET_ROOT="/app/env/datasets"
 # Intentionally NOT setting ENABLE_WEB_INTERFACE=true. openenv-core's default
 # Gradio UI would compete for the root mount and shadow our custom UI.
 # server/app.py mounts ``server.ui.build_ui()`` at / with our charcoal theme

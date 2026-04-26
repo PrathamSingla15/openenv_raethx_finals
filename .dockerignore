@@ -11,14 +11,16 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
-# Ship just what the landing's interactive Plotly figures need:
-# - artifacts/runs/ → load_model_iters, replay_reward_components
-# - datasets/catalog/sample-v2/daily_bars/part-000.parquet → equal_weight_bnh_series
-# Excluding datasets/real-data/: the runtime env code falls back to package-bundled
-# data when datasets/real-data/ is absent. Including it triggers a different code
-# path (_resolve_real_data_dir) that expects a stricter on-disk layout and 500s on
-# /reset; the package fallback is what the prior deployment used.
-datasets/real-data/
+# Ship the full datasets/ tree EXCEPT the yfinance scratch cache:
+# - datasets/catalog/sample-v2/  → episode manifests + sample bars (used by
+#   write_sample_dataset and equal_weight_bnh_series)
+# - datasets/real-data/real-v0/  → baked real OHLCV that _load_real_tier_data
+#   needs (the new sample-v2 wheel requires this; sample-v0 wheels did not)
+# - datasets/real-data/aliases.json → alias→ticker map sidecar
+# Combined with the Dockerfile's ENV TRADEBENCH_DATASET_ROOT=/app/env/datasets,
+# this lets resolve_settings() find the catalog directly without going through
+# the broken _project_root() resolver in the installed wheel.
+datasets/real-data/_yfinance_cache/
 .idea/
 .vscode/
 .cursor/

@@ -206,15 +206,14 @@ _SAMPLE_LABEL_HTML = (
 def render() -> None:
     gr.HTML(_INTRO_HTML)
 
+    # Single canonical tier — the Demo tab is for poking at the live env, not
+    # picking between t1/train/test. The scored deployment uses ``test``;
+    # we use the same one here so what users see matches what gets graded.
+    _DEMO_TIER = "test"
+
     gr.HTML(_RESET_LABEL_HTML)
     with gr.Row():
         with gr.Column(scale=1):
-            tier = gr.Dropdown(
-                choices=["t1", "train", "test"],
-                value="t1",
-                label="Task tier",
-                info="t1=60 bars (debug), train=252 bars (study packet), test=120 bars (held-out rollout)",
-            )
             seed = gr.Number(value=42, label="Seed", precision=0)
             reset_btn = gr.Button("Reset environment", variant="primary")
             reset_status = gr.Textbox(
@@ -262,9 +261,9 @@ def render() -> None:
     sample_btn = gr.Button("Run sample episode", variant="primary")
     sample_log = gr.JSON(label="Per-step log", value=[])
 
-    def handle_reset(tier_value: str, seed_value: float):
+    def handle_reset(seed_value: float):
         try:
-            body = {"task_tier": tier_value, "seed": int(seed_value or 0)}
+            body = {"task_tier": _DEMO_TIER, "seed": int(seed_value or 0)}
             payload = _post("/reset", body)
             return (
                 _format_summary(payload),
@@ -307,15 +306,15 @@ def render() -> None:
     def handle_action_change(act_type: str):
         return _hint_for(act_type)
 
-    def handle_sample_episode(tier_value: str):
+    def handle_sample_episode():
         log: list[dict[str, Any]] = []
         try:
-            reset_resp = _post("/reset", {"task_tier": tier_value, "seed": 42})
+            reset_resp = _post("/reset", {"task_tier": _DEMO_TIER, "seed": 42})
             log.append({"step": "reset", "summary": _format_summary(reset_resp)})
 
             obs_meta = (reset_resp.get("observation") or {}).get("tool_metadata") or {}
-            universe = obs_meta.get("universe") or [f"tier_{tier_value}_a01"]
-            primary_asset = universe[0] if isinstance(universe, list) and universe else f"tier_{tier_value}_a01"
+            universe = obs_meta.get("universe") or [f"tier_a01"]
+            primary_asset = universe[0] if isinstance(universe, list) and universe else "tier_a01"
 
             scripted = [
                 ("view_portfolio", {}),
@@ -363,7 +362,7 @@ def render() -> None:
 
     reset_btn.click(
         fn=handle_reset,
-        inputs=[tier, seed],
+        inputs=[seed],
         outputs=[reset_status, reset_obs, breakdown_html],
     )
     step_btn.click(
@@ -378,6 +377,6 @@ def render() -> None:
     )
     sample_btn.click(
         fn=handle_sample_episode,
-        inputs=[tier],
+        inputs=[],
         outputs=[sample_log],
     )
