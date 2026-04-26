@@ -20,25 +20,21 @@ What was once left to individual judgement can become an optimizable system. A n
 
 That is the bet TradeBench makes. We turn long-horizon equities trading into an environment where execution discipline is a measurable, decomposable, gradient-friendly target, not a soft skill anyone has to grade by feel. The reward is bounded in [0, 1], decomposed across seven trader-recognizable components, and gated by a binary compliance check. The data is real OHLCV behind a four-layer anti-memorization stack so the agent has to derive strategy from what it sees, not retrieve it from training memory. The episode is 119 bars long, ~50-200 tool calls deep, and emits a dense per-bar reward designed for any optimizer that can use a scalar signal: prompt evolution, GRPO, PPO, or anything that comes next.
 
-The post is self-contained. Sections 1-3 give you the result and the env. Sections 4-6 explain the training mechanism and why we picked it over GRPO. Section 7 is the full results, both Qwen3-32B and GLM-5.1, every figure embedded inline. Sections 8-10 cover what reflection actually taught the agent, what this submission proves and does not prove, and where it goes next.
-
 ---
 
 ## 1. The result, before anything else
 
 GRPO on this env would have cost roughly 750 hours of wall-clock. We had 36. So we left the model frozen and optimized the prompt: 5 reflections, $3 of inference, ROI from +2.78% to +9.89%, monotone every iteration. This is what we learned about installing execution discipline on a 32B model without touching the weights.
 
-We froze Qwen3-32B and ran it on a 119-bar trading episode, scoring against an equal-weight buy-and-hold baseline on real OHLCV data. At iteration zero the agent earned `score_normalized = 0.6155`, ROI of +2.78%, and placed four orders across the run. After five reflection passes, with no gradient updates and no model swap, the same agent reached `0.6584`, +9.89%, twelve orders. Every iteration improved on the last; the climb was monotone.
-
 Nothing about the model changed; the weights stayed where Groq served them. Between rollouts, Claude Opus 4.7 read the prior trajectory, identified what the agent had failed to do, and rewrote the system prompt. That was the entire optimization loop.
 
-The claim is narrower than "prompts matter." Frontier LLMs already carry the planning knowledge needed to act in a sequential, non-stationary decision environment. What they lack is a calibrated policy for spending that knowledge under tight constraints: the right pacing, sizing, and abstention behavior. We asked whether prompt evolution alone, on a task with strict anti-memorization defenses, can install that policy. Five iterations and a 3.6x ROI improvement later, it can.
+The claim is narrower than "prompts matter." Frontier LLMs already carry the planning knowledge needed to act in a sequential, non-stationary decision environment. What they lack is a calibrated policy for spending that knowledge under tight constraints: the right pacing, sizing, and abstention behavior. We asked whether prompt evolution alone, on a task with strict anti-memorization defenses, can install that policy. The data below says it can.
 
 ![Equity curves across all six Qwen3-32B iterations, plotted against the equal-weight buy-and-hold benchmark on the same 119-bar test episode.](docs/figures/equity_curves_all_iters.png)
 *Figure 1. Qwen3-32B. Every iteration's prompt produces a higher-equity trajectory than the prior. Baseline (red dashed) ends at +2.78%; iter 5 (dark green, thick) ends at +9.89%, the closest any iteration gets to the equal-weight buy-and-hold reference (blue dashed, +15.96%). All six agent runs share the same prices, the same available actions, and the same scaffold; only the system prompt changed between them.*
 
 ![Equity curves across all four GLM-5.1 iterations against the same equal-weight buy-and-hold reference.](docs/figures/equity_curves_all_iters_glm.png)
-*Figure 2. GLM-5.1. Same picture, different base model. Baseline +2.83% to iter 3 +4.69%. Lower absolute ROI than Qwen, but the trained agent's annualized Sharpe of **+2.32 beats the +1.79 of equal-weight buy-and-hold** on the same window: GLM produced the same dollars per unit of realized risk a passive book did, and produced more of them per unit of drawdown. Sharpe is arguably the metric that matters most in trading, and our 7-component reward only captures it indirectly through `c_consistency` (downside-volatility-of-bar-alpha at weight 0.10). A reward redesign that surfaces risk-adjusted return as a first-class signal is the single largest open improvement to TradeBench, and it is the first thing we would do with another weekend.*
+*Figure 2. GLM-5.1, same harness. Baseline +2.83% → iter 3 +4.69%. The Sharpe story is sharper than ROI: GLM iter 3 hits **+2.32 annualized vs the +1.79 of equal-weight buy-and-hold**. Our reward currently captures Sharpe only indirectly through `c_consistency` (weight 0.10); making it a first-class signal is the single largest open improvement to TradeBench.*
 
 **The model didn't get smarter. It got more disciplined.**
 
@@ -50,7 +46,7 @@ Frontier LLMs have measurable failure modes on long-horizon decision tasks. They
 
 Finance is the cleanest place to measure this. The reward function has no taste, no narrative, no goalpost drift: a portfolio either compounded or it did not, and the path that got it there is on the ledger. Sequential mistakes show up as sequential dollars lost. There is nowhere to hide. That is exactly the property a long-horizon RL environment needs and the property most agentic benchmarks lack.
 
-We worked through the cost arithmetic for the textbook fix (RL via GRPO/PPO) and it did not fit the budget. A single 119-bar test episode took 35 to 45 minutes of wall-clock through GLM-5.1 on Together, and about 22 minutes through Qwen3-32B on Groq, with hundreds of tool calls per episode at a few seconds each. Multiplying that across the rollout count an LLM-as-policy RL run needs got us to weeks, not the 36 hours a hackathon allows. Even with concurrency, the per-token economics cut the experiment off before it could start. Section 5 has the full numeric comparison.
+We costed the textbook fix (RL via GRPO/PPO) against the actual hackathon budget: it would have wanted ~750 hours of GLM-5.1 rollouts against our 36-hour window. Section 5 has the table.
 
 So we picked the cheaper axis. Leave the model frozen, treat prompt-space as the optimization domain. Each iteration reads the prior trajectory, finds the demonstrated failure modes, proposes surgical edits to the system prompt, and redeploys. The mechanism draws from GEPA-style generative prompt evolution and the broader reflective-optimization line of work, with a strong reflector (Opus 4.7) operating on a smaller agent's (Qwen3-32B) trajectories.
 
@@ -102,8 +98,6 @@ The whole module lives in `src/tradebench/rewards/composite.py`. Three reward de
 
 All seven components plus the gate are surfaced in `TradeObservation.reward_breakdown` for per-bar logging, so reflection's reward analysis is grounded in component-level signal rather than a single opaque scalar.
 
-**The point of the env is not to be hard. The point is to be optimizable.**
-
 The episode shape is a clean train and test split. The `train` phase is 252 bars (about 1 year) of in-context study packet: at reset the agent receives the full window's OHLCV plus summary stats and a correlation matrix, derives a strategy, and emits a single `record_decision`. No per-bar rollout, no reward. The `test` phase is 120 bars (about 6 months) of held-out walked-bar-by-bar evaluation, calendar-adjacent to `train` (starting the trading day after `train` ends). The agent steps one bar at a time, the composite reward emits per `advance_day`, and the mean per-bar reward across the window is `score_normalized`. That is the only score that counts. A separate `t1` debug tier (60 bars, 5 assets) exists for harness validation and prompt iteration; nothing in this post uses it. Every result reported here is from a single `test` rollout.
 
 **Anti-memorization stack: six layers, redundant by design.**
@@ -141,7 +135,7 @@ The reflection signal we needed was one sentence the loop could repeat: you said
 
 ## 5. Why reflection-based optimization, not GRPO
 
-We treated GRPO as the default and stress-tested it against the budget and env. It failed the budget check on six counts.
+We treated GRPO as the default and stress-tested it against the budget and env. It failed the check on four counts.
 
 **1. Compute cost is prohibitive.** Each rollout is 300 to 500 LLM calls (every `view_*`, `sandbox_exec`, `record_decision`, `place_order`, `advance_day` is its own model invocation). Standard policy-gradient methods like PPO or GRPO need on the order of 1000 rollouts before the gradient signal can distinguish good policies from random ones. The arithmetic:
 
@@ -160,10 +154,6 @@ For internal calibration: a single rollout against either model burns about 40-6
 **3. Sample efficiency is on the wrong side.** Gradient-based RL needs the gradient signal to dominate the noise floor across thousands of rollouts. Reflection ingests one trajectory per iteration and produces a discrete edit to the system prompt; in-context updates via natural language are O(1) per data point. A single trajectory tells the reflector "you committed to a 5-asset basket but only filled 1 leg, here is a one-paragraph patch." That same lesson would take an RL run hundreds of correlated rollouts to extract from the gradient.
 
 **4. The gap is policy calibration, not new knowledge** (see section 4). RL rewires the weights, which overshoots when the missing piece is a sequential protocol. Reflection edits the protocol surface (the system prompt), the right unit of change.
-
-**5. Reflection produces a legible, auditable optimization trace.** It optimizes the symbolic policy itself: the system prompt. Diff iter 0 against iter 5 and you can read what changed and why. Compare against an RL-trained policy, where the change lives in 32B fp16 weights and you have to probe it indirectly. The reflection trace is six prompt files plus six reflector responses on disk; an RL trace is millions of gradient steps in a checkpoint dir. For a hackathon judged in part on storytelling and reproducibility, the readable artifact does real work.
-
-**6. Reflection bootstraps from the base model's existing competence.** RL on a 32B model requires either a working starting policy or a massive exploration budget to find one. Reflection starts from "the canonical TradeBench system prompt with a 5-step daily protocol and a worked example" and uses the base model's instruction-following to make every rollout immediately productive. There is no cold-start regime where the agent flails for hundreds of episodes before the gradient picks up signal.
 
 There is an honest tradeoff. Reflection only operates inside the model's capability surface. Whatever Qwen3-32B fundamentally cannot do, no prompt edit will install. RL can in principle teach new skills not present in the base model. Reflection is a pragmatic choice for a specific regime, not a universal claim about how to train agents.
 
@@ -193,7 +183,7 @@ It must return:
 - **STEP 2:** a surgical edit plan.
 - A `<NEW_SYSTEM_PROMPT>...</NEW_SYSTEM_PROMPT>` block with the actual rewrite.
 
-**The 1.10x length cap is the difference between converging and drifting.** The new prompt cannot exceed 1.10 times the prior length. Without it, the prompt doubled within two iterations and the agent regressed; with it, every iteration is forced into a surgical edit. The reflector is also told to identify the single most-costly failure mode and fix only that. Tight feedback loops, very little friction, one thing per iteration: the same constraints that make a small co-located team ship fast are the constraints that make a reflector converge.
+**The 1.10x length cap is the difference between converging and drifting.** The new prompt cannot exceed 1.10 times the prior length. Without it, the prompt doubled within two iterations and the agent regressed; with it, every iteration is forced into a surgical edit. The reflector is also told to identify the single most-costly failure mode and fix only that. One thing per iteration is the rule.
 
 After each iteration, the new prompt is fed into the next rollout. We commit both the rollout artifacts and the reflector's raw response (`artifacts/reflection_<ts>/iter_NN__reflection/reflector_raw_response.txt`) so the entire optimization trace is replayable from disk.
 
@@ -275,8 +265,6 @@ Caution: on later bars, run the gap-check before advancing.
 
 The worked example absorbed the lesson from section 5 step 4: do not advance the clock without first checking that the committed basket is built. That gives the agent both a rule and a worked instance that obeys it, in the same prompt.
 
-What stayed put across all 5 reflections: the anti-memorization rules-clause, the worked-example shape, the tool surface, the tier definitions, the output contract, and the sandbox spec. Opus identified those as already working and did not spend the 1.10x length budget rewriting them.
-
 ---
 
 ## 7. Results
@@ -292,7 +280,7 @@ We ran reflection-based prompt optimization on Qwen3-32B (served via Groq) for 5
 | 4 | 0.6476 | +6.96% | +0.0321 | 14 | 6 | 32 |
 | **5** | **0.6584** | **+9.89%** | **+0.0429** | **12** | **10** | **31** |
 
-ROI grew 3.6x in absolute terms across 5 iterations (+2.78% to +9.89%). For reference, an equal-weight buy-and-hold over the same 10 assets and 119 bars returns +15.96%. The trained agent still trails B&H, but the gap closed from roughly -13 log-points at baseline to -5 log-points at iter 5. That delta is what the reflection loop produced; the bar-level alpha plot below makes it visible.
+For reference, equal-weight buy-and-hold over the same 10 assets and 119 bars returns +15.96%. The trained agent still trails B&H, but the gap closed from roughly -13 log-points at baseline to -5 log-points at iter 5. The Qwen equity-curve panel at the top of this post (Figure 1) is the visual; what follows is the per-iteration decomposition.
 
 ![Figure 4](docs/figures/reward_evolution.png)
 *Figure 4. score_normalized per reflection iteration. Qwen3-32B and GLM-5.1 on the same axes.*
@@ -390,7 +378,7 @@ Reflection moves both models up the rubric: Qwen 1 → 5, GLM 2 → 3. The remai
 
 ## 9. What this proves and does not prove
 
-This is a single-team hackathon submission, built and validated over a 36-hour weekend. The trained agent reaches +9.89% ROI on a single 119-bar test rollout, evaluated under one seed per model, on one randomly drawn source window. We could have spent the budget on multi-seed cross-validation and shipped a smaller result; we chose instead to ship a deployable environment with a demonstrable learning trajectory and an explicit accounting of what one seed actually proves. Both are linked above.
+We ran one seed per model.
 
 What this submission proves: (a) on a non-stationary, anti-leak-defended trading task, prompt-only optimization via a stronger reflector lifts a frozen 32B agent from 0.6155 to 0.6584 on a bounded composite reward, monotonically across 5 iterations; (b) the same harness improves a different base model (GLM-5.1) from a different starting pathology toward the same converged operating point; (c) the bounded-component reward + multiplicative compliance gate held across 10 rollouts with zero rules-clause hits, zero forbidden-global hits, and zero compliance-gate zeros, validating the reward design under adversarial pressure from two different base models.
 
