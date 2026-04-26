@@ -14,6 +14,7 @@ from scripts.visualize import (
     viz_d_bar_alpha,
     viz_e_action_mix,
     viz_f_reward_components,
+    viz_g_equity_curves_all,
 )
 from scripts.visualize.data_loader import PROJECT_ROOT
 
@@ -37,6 +38,11 @@ def main() -> int:
 
         viz_d_bar_alpha.render(OUT_DIR / f"bar_alpha_vs_bnh{suffix}.png", model_id=model_id)
         print(f"  OK  bar_alpha_vs_bnh{suffix}.png")
+
+        viz_g_equity_curves_all.render(
+            OUT_DIR / f"equity_curves_all_iters{suffix}.png", model_id=model_id,
+        )
+        print(f"  OK  equity_curves_all_iters{suffix}.png")
 
         viz_e_action_mix.render(OUT_DIR / f"action_mix_evolution{suffix}.png", model_id=model_id)
         print(f"  OK  action_mix_evolution{suffix}.png")

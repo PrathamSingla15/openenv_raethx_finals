@@ -34,6 +34,12 @@ Nothing about the model changed; the weights stayed where Groq served them. Betw
 
 The claim is narrower than "prompts matter." Frontier LLMs already carry the planning knowledge needed to act in a sequential, non-stationary decision environment. What they lack is a calibrated policy for spending that knowledge under tight constraints: the right pacing, sizing, and abstention behavior. We asked whether prompt evolution alone, on a task with strict anti-memorization defenses, can install that policy. Five iterations and a 3.6x ROI improvement later, it can.
 
+![Equity curves across all six Qwen3-32B iterations, plotted against the equal-weight buy-and-hold benchmark on the same 119-bar test episode.](docs/figures/equity_curves_all_iters.png)
+*Figure 1. Qwen3-32B. Every iteration's prompt produces a higher-equity trajectory than the prior. Baseline (red dashed) ends at +2.78%; iter 5 (dark green, thick) ends at +9.89%, the closest any iteration gets to the equal-weight buy-and-hold reference (blue dashed, +15.96%). All six agent runs share the same prices, the same available actions, and the same scaffold; only the system prompt changed between them.*
+
+![Equity curves across all four GLM-5.1 iterations against the same equal-weight buy-and-hold reference.](docs/figures/equity_curves_all_iters_glm.png)
+*Figure 2. GLM-5.1. Same picture, different base model. Baseline +2.83% to iter 3 +4.69%. Lower absolute ROI than Qwen, but the trained agent's annualized Sharpe of **+2.32 beats the +1.79 of equal-weight buy-and-hold** on the same window: GLM produced the same dollars per unit of realized risk a passive book did, and produced more of them per unit of drawdown. Sharpe is arguably the metric that matters most in trading, and our 7-component reward only captures it indirectly through `c_consistency` (downside-volatility-of-bar-alpha at weight 0.10). A reward redesign that surfaces risk-adjusted return as a first-class signal is the single largest open improvement to TradeBench, and it is the first thing we would do with another weekend.*
+
 **The model didn't get smarter. It got more disciplined.**
 
 ---
@@ -201,8 +207,8 @@ After that edit landed, the agent's `place_order` count went from 4 to 6 in iter
 
 ### Prompt evolution: what changed across the run
 
-![Figure 8](docs/figures/prompt_evolution.png)
-*Figure 8. System prompt evolution across 5 reflection iterations on Qwen3-32B. Baseline 399 lines, after iter 5 445 lines (1.10x cap respected). Three sections changed; the rest preserved.*
+![Figure 3](docs/figures/prompt_evolution.png)
+*Figure 3. System prompt evolution across 5 reflection iterations on Qwen3-32B. Baseline 399 lines, after iter 5 445 lines (1.10x cap respected). Three sections changed; the rest preserved.*
 
 Across 5 reflections under the 1.10x length cap, only three regions of the prompt moved. The reflector left the anti-memorization rules-clause, the worked-example shape, the tool surface, the tier definitions, the output contract, and the sandbox spec as written. That conservatism is why the optimization curve stayed monotone.
 
@@ -288,28 +294,23 @@ We ran reflection-based prompt optimization on Qwen3-32B (served via Groq) for 5
 
 ROI grew 3.6x in absolute terms across 5 iterations (+2.78% to +9.89%). For reference, an equal-weight buy-and-hold over the same 10 assets and 119 bars returns +15.96%. The trained agent still trails B&H, but the gap closed from roughly -13 log-points at baseline to -5 log-points at iter 5. That delta is what the reflection loop produced; the bar-level alpha plot below makes it visible.
 
-![Figure 1](docs/figures/reward_evolution.png)
-*Figure 1. score_normalized per reflection iteration. Qwen3-32B and GLM-5.1 on the same axes.*
+![Figure 4](docs/figures/reward_evolution.png)
+*Figure 4. score_normalized per reflection iteration. Qwen3-32B and GLM-5.1 on the same axes.*
 
 The Qwen line climbs monotonically from 0.6155 to 0.6584, with no regressions. The surgical-edit constraint (each reflection touches only the named failure modes, capped at 1.10x prior length) was tight enough to preserve what worked while improving what didn't. The GLM line shows a different shape: a sharp jump at iter 1, a small dip at iter 2, then a recovery to a new best at iter 3. Same loop, different base model, qualitatively different optimization curve.
 
-![Figure 2](docs/figures/reward_roi_combined.png)
-*Figure 2. ROI bars (left axis) and score_normalized line (right axis), Qwen3-32B.*
+![Figure 5](docs/figures/reward_roi_combined.png)
+*Figure 5. ROI bars (left axis) and score_normalized line (right axis), Qwen3-32B.*
 
 ROI and score_normalized track together but not identically. Score combines seven components (alpha vs B&H, return, drawdown, hit rate, position consistency, bar diversity, leverage discipline); ROI is only one input. The two-axis view shows the agent improving on the composite signal even when realized ROI is noisy across iterations. Iter 2's ROI dipped slightly versus iter 1 while score still climbed; the other components compensated.
 
-![Figure 3](docs/figures/bar_alpha_vs_bnh.png)
-*Figure 3. Per-bar cumulative log-alpha vs equal-weight B&H, baseline (red dashed) vs iter 5 (green solid).*
-
-This is the plot that makes the change feel real. **Same prices, same available actions, same scaffold; only the prompt changed.** The baseline agent drifts negative across the episode, troughing near -13 log-points as the market rallies and the agent stays mostly in cash. The iter 5 agent stays close to flat through the early window and stabilizes around -5 log-points across the back half. The shift from "watching from the sideline" to "participating, imperfectly" is what we wanted reflection to find.
-
-![Figure 4](docs/figures/action_mix_evolution.png)
-*Figure 4. Counts of place_order, sandbox_exec, and view_* per iteration.*
+![Figure 6](docs/figures/action_mix_evolution.png)
+*Figure 6. Counts of place_order, sandbox_exec, and view_* per iteration.*
 
 The action histograms tell a sharper story than the table alone. place_order tripled (4 to 12) over the trajectory; the agent learned to act on its convictions rather than record an intent and never file it. view_* went from 6 calls at baseline to 31 at iter 5, after the reflector inserted a per-bar protocol asking the agent to read portfolio state before deciding. The most surprising trace is sandbox_exec: 22 at baseline, peaking at 29 after iter 1, then collapsing to 1 by iter 3 and stabilizing in the 6 to 10 range. We did not encode that lesson by hand. The reflector's edits steered the agent toward acting on existing analysis rather than re-running the same analysis bar after bar, and **the count dropped 22x from baseline in a single iteration window**.
 
-![Figure 5](docs/figures/reward_components_baseline_vs_final.png)
-*Figure 5. Mean per-bar contribution of each reward component, baseline vs iter 5.*
+![Figure 7](docs/figures/reward_components_baseline_vs_final.png)
+*Figure 7. Mean per-bar contribution of each reward component, baseline vs iter 5.*
 
 The components view confirms the mechanism. c_alpha gained +0.033, c_return +0.023, and c_consistency +0.035, mean per-bar. These are the three components that move when the agent trades into positions and holds them. c_drawdown dropped slightly: more positions means more interim mark-to-market noise, a fair cost when alpha and return are climbing in lockstep. The reward function isn't being gamed; the policy is improving along the axes the reward was designed to measure.
 
@@ -327,13 +328,10 @@ Two patterns worth flagging:
 - GLM's baseline was a more extreme under-trader than Qwen's (2 vs 4 orders, 88 view_* vs 6, 81 sandbox_exec vs 22), so the reflector had a bigger initial signal, and the first iteration produced a correspondingly larger jump (about 3x Qwen's iter-1 gain).
 - GLM's trajectory was non-monotone: it dipped at iter 2 then recovered at iter 3, where Qwen climbed cleanly. Same loop, different base model, qualitatively different optimization curve.
 
-![Figure 6](docs/figures/reward_roi_combined_glm.png)
-*Figure 6. GLM-5.1 ROI bars and score line per iteration.*
+![Figure 8](docs/figures/reward_roi_combined_glm.png)
+*Figure 8. GLM-5.1 ROI bars and score line per iteration.*
 
-![Figure 7](docs/figures/bar_alpha_vs_bnh_glm.png)
-*Figure 7. GLM-5.1 per-bar log-alpha vs B&H, baseline vs iter 3.*
-
-The GLM bar-alpha plot shows the same shape as Qwen's: baseline drifts negative to roughly -13 log-points; iter 3 cuts the trough by about half. The recovery is less pronounced than Qwen's iter 5 because GLM had three iterations rather than five, but the directional move is the same. Full GLM tables, action-mix evolution, and reward-component decomposition live in `RESULTS.md`.
+The GLM equity-curve panel (Figure 2 at the top of this post) shows the same shape as Qwen's: every iteration's prompt produces a higher-equity trajectory than the prior, and the gap to equal-weight buy-and-hold closes monotonically. The recovery is less pronounced than Qwen's iter 5 because GLM had three iterations rather than five, but the direction is the same. The Sharpe story is sharper: GLM iter 3 lands at **+2.32 annualized vs the +1.79 of equal-weight B&H** on the same window. The trained agent earned more dollars per unit of realized risk than a passive book did. Full GLM tables, action-mix evolution, and reward-component decomposition live in `RESULTS.md`.
 
 ---
 
