@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tradebench"
+version = "0.1.0"
+description = "TradeBench: long-horizon equities trading benchmark with point-in-time data, sandboxed agents, and an OpenEnv-compatible session API."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "TradeBench contributors" }]
+dependencies = [
+    "openenv-core[core]>=0.2.2",
+    "openai>=1.0.0",
+    "pydantic>=2,<3",
+    "fastapi>=0.110",
+    "uvicorn>=0.30",
+    "gradio>=5.0",
+    "httpx>=0.27",
+    "duckdb>=1.5,<2",
+    "pyarrow>=20,<22",
+    "pandas>=2.2,<3",
+    "docker>=7,<8",
+    "python-dotenv>=1",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1"]
+# Plot-generator deps. Local-only; HF Space build skips this extra to keep
+# the image lean. ``uv sync --extra plots`` to enable.
+plots = ["matplotlib>=3.8,<4"]
+# Headless-browser screenshot + UI integration tests. Local-only; HF Space
+# image excludes this extra. ``uv sync --extra screenshots`` to enable;
+# then ``uv run playwright install chromium`` to fetch the browser bundle.
+screenshots = ["playwright>=1.40,<2"]
+# Teammate-briefing PDF generator (scripts/build_overview_pdf.py).
+# Local-only; HF Space image skips this extra.
+pdf = ["mistune>=3,<4", "weasyprint>=64,<69"]
+# Real-data baker (scripts/build_real_dataset.py). Build-time only — the
+# parquet output is committed and the runtime container never imports
+# yfinance. ``uv sync --extra realdata`` to enable, then run the script.
+realdata = ["yfinance>=0.2.40,<1"]
+
+[project.scripts]
+# OpenEnv-required entry point: launches the FastAPI server via uvicorn.
+server = "server.app:main"
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tradebench", "server"]
+include = ["models.py", "client.py", "inference.py", "__init__.py"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/tradebench",
+    "server",
+    "models.py",
+    "client.py",
+    "inference.py",
+    "__init__.py",
+    "README.md",
+    "pyproject.toml",
+    "openenv.yaml",
+    "Dockerfile",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+    "pytest-cov>=6,<7",
+    "ruff>=0.12,<1",
+    "mypy>=1.17,<2",
+    "starlette>=0.40",
+    "jinja2>=3",
+    "uvicorn>=0.30",
+    "httpx>=0.27",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# `--import-mode=importlib` keeps pytest from treating the top-level
+# ``__init__.py`` (kept for the hatchling wheel build) as a package init
+# script for the entire repo — which would break the relative imports
+# inside it during test collection.
+addopts = "-ra --import-mode=importlib"
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "src"
+packages = ["tradebench"]

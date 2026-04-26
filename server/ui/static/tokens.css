@@ -1,0 +1,56 @@
+/* TradeBench design tokens — see docs/UI_DESIGN_PROPOSAL.md §2.
+   Charcoal canvas, single cyan accent, desaturated PnL semantics. */
+
+:root {
+    /* Surface */
+    --bg: #0A0E13;
+    --bg-elev-1: #11161D;
+    --bg-elev-2: #1A2029;
+
+    /* Type */
+    --ink: #E6E8EB;
+    --ink-mute: #7A8693;
+    --ink-faint: #4F5763;
+
+    /* Accent — single, saturated, cyan */
+    --accent: #22D3EE;
+    --accent-hi: #67E8F9;
+    --accent-lo: #0E7490;
+    --accent-glow: rgba(34, 211, 238, 0.18);
+
+    /* PnL semantics — used ONLY for numerical color coding */
+    --long: #5BC97D;
+    --long-mute: #3F8B58;
+    --short: #E37D78;
+    --short-mute: #9F4F4B;
+
+    /* Structure */
+    --rule: #1F2731;
+    --rule-strong: #2A3340;
+    --grid: rgba(34, 211, 238, 0.04);
+
+    /* Type ramp */
+    --type-display: "Fraunces", "EB Garamond", Georgia, serif;
+    --type-body: "IBM Plex Sans", "Plex Sans", system-ui, sans-serif;
+    --type-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+
+    /* Spacing scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 18px;
+    --space-5: 28px;
+    --space-6: 44px;
+    --space-7: 72px;
+
+    /* Radii */
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 14px;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-fast: 150ms;
+    --dur-med: 240ms;
+    --dur-slow: 600ms;
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "iteration": 0,
+    "run_id": "20260426T014336Z__train-test__qwen-qwen3-32b-groq",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T014336Z__train-test__qwen-qwen3-32b-groq",
+    "test_score": 0.027802445491806882,
+    "test_cumulative_reward": 73.2403548672978,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6155492005655278,
+    "test_action_counts": {
+      "record_decision": 140,
+      "place_order": 4,
+      "advance_day": 151,
+      "view_portfolio": 6,
+      "sandbox_exec": 22
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.027802445491806882
+    },
+    "prior_run": null
+  },
+  {
+    "iteration": 1,
+    "run_id": "20260426T022442Z__train-test__qwen-qwen3-32b-groq__iter01_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T022442Z__train-test__qwen-qwen3-32b-groq__iter01_reflect",
+    "test_score": 0.04720523647586372,
+    "test_cumulative_reward": 73.94745445143302,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.621407180264143,
+    "test_action_counts": {
+      "record_decision": 137,
+      "advance_day": 181,
+      "sandbox_exec": 29,
+      "place_order": 6,
+      "view_portfolio": 22,
+      "view_episode_metrics": 1
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.04720523647586372
+    },
+    "prior_run": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T014336Z__train-test__qwen-qwen3-32b-groq"
+  },
+  {
+    "iteration": 2,
+    "run_id": "20260426T025319Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T025319Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "test_score": 0.038763513200253286,
+    "test_cumulative_reward": 75.0472412383665,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6306490860366932,
+    "test_action_counts": {
+      "advance_day": 185,
+      "sandbox_exec": 6,
+      "record_decision": 130,
+      "place_order": 10,
+      "view_portfolio": 17
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.038763513200253286
+    },
+    "prior_run": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T022442Z__train-test__qwen-qwen3-32b-groq__iter01_reflect"
+  }
+]

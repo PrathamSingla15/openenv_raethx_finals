@@ -1,0 +1,231 @@
+{
+  "base_price": 75.0,
+  "noise_sigma": 0.0005,
+  "pair_calendar": {
+    "test_end": "2025-06-04",
+    "test_start": "2024-12-19",
+    "train_end": "2024-12-18",
+    "train_start": "2024-01-02",
+    "universe": [
+      "tier_a01",
+      "tier_a02",
+      "tier_a03",
+      "tier_a04",
+      "tier_a05",
+      "tier_a06",
+      "tier_a07",
+      "tier_a08",
+      "tier_a09",
+      "tier_a10"
+    ]
+  },
+  "seed": 20260425,
+  "tiers": {
+    "t1": {
+      "tier_t1_a01": {
+        "manifest_end": "2020-03-31",
+        "manifest_start": "2020-01-02",
+        "n_bars": 64,
+        "real_ticker": "META",
+        "source_end": "2026-03-02",
+        "source_start": "2025-11-26"
+      },
+      "tier_t1_a02": {
+        "manifest_end": "2020-03-31",
+        "manifest_start": "2020-01-02",
+        "n_bars": 64,
+        "real_ticker": "AVGO",
+        "source_end": "2021-06-03",
+        "source_start": "2021-03-04"
+      },
+      "tier_t1_a03": {
+        "manifest_end": "2020-03-31",
+        "manifest_start": "2020-01-02",
+        "n_bars": 64,
+        "real_ticker": "TMO",
+        "source_end": "2026-03-25",
+        "source_start": "2025-12-22"
+      },
+      "tier_t1_a04": {
+        "manifest_end": "2020-03-31",
+        "manifest_start": "2020-01-02",
+        "n_bars": 64,
+        "real_ticker": "XOM",
+        "source_end": "2020-12-16",
+        "source_start": "2020-09-17"
+      },
+      "tier_t1_a05": {
+        "manifest_end": "2020-03-31",
+        "manifest_start": "2020-01-02",
+        "n_bars": 64,
+        "real_ticker": "PEP",
+        "source_end": "2020-06-03",
+        "source_start": "2020-03-04"
+      }
+    },
+    "test": {
+      "tier_a01": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "TXN",
+        "source_end": "2023-12-18",
+        "source_start": "2023-06-29"
+      },
+      "tier_a02": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "ORCL",
+        "source_end": "2023-08-14",
+        "source_start": "2023-02-22"
+      },
+      "tier_a03": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "AAPL",
+        "source_end": "2024-07-05",
+        "source_start": "2024-01-12"
+      },
+      "tier_a04": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "WMT",
+        "source_end": "2021-07-27",
+        "source_start": "2021-02-04"
+      },
+      "tier_a05": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "CSCO",
+        "source_end": "2022-10-03",
+        "source_start": "2022-04-12"
+      },
+      "tier_a06": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "JPM",
+        "source_end": "2021-07-19",
+        "source_start": "2021-01-27"
+      },
+      "tier_a07": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "XOM",
+        "source_end": "2024-02-26",
+        "source_start": "2023-09-05"
+      },
+      "tier_a08": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "PEP",
+        "source_end": "2024-04-25",
+        "source_start": "2023-11-02"
+      },
+      "tier_a09": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "TSLA",
+        "source_end": "2020-05-05",
+        "source_start": "2019-11-12"
+      },
+      "tier_a10": {
+        "manifest_end": "2025-06-04",
+        "manifest_start": "2024-12-19",
+        "n_bars": 120,
+        "real_ticker": "DIS",
+        "source_end": "2026-01-05",
+        "source_start": "2025-07-16"
+      }
+    },
+    "train": {
+      "tier_a01": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "TXN",
+        "source_end": "2023-06-28",
+        "source_start": "2022-06-28"
+      },
+      "tier_a02": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "ORCL",
+        "source_end": "2023-02-21",
+        "source_start": "2022-02-18"
+      },
+      "tier_a03": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "AAPL",
+        "source_end": "2024-01-11",
+        "source_start": "2023-01-11"
+      },
+      "tier_a04": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "WMT",
+        "source_end": "2021-02-03",
+        "source_start": "2020-02-05"
+      },
+      "tier_a05": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "CSCO",
+        "source_end": "2022-04-11",
+        "source_start": "2021-04-14"
+      },
+      "tier_a06": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "JPM",
+        "source_end": "2021-01-26",
+        "source_start": "2020-01-28"
+      },
+      "tier_a07": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "XOM",
+        "source_end": "2023-09-01",
+        "source_start": "2022-09-01"
+      },
+      "tier_a08": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "PEP",
+        "source_end": "2023-11-01",
+        "source_start": "2022-11-01"
+      },
+      "tier_a09": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "TSLA",
+        "source_end": "2019-11-11",
+        "source_start": "2018-11-09"
+      },
+      "tier_a10": {
+        "manifest_end": "2024-12-18",
+        "manifest_start": "2024-01-02",
+        "n_bars": 252,
+        "real_ticker": "DIS",
+        "source_end": "2025-07-15",
+        "source_start": "2024-07-12"
+      }
+    }
+  }
+}

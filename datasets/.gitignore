@@ -1,0 +1,6 @@
+*
+!.gitignore
+!real-data/
+!real-data/**
+!catalog/
+!catalog/**

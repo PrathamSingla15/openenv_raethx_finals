@@ -1,0 +1,28 @@
+{
+  "run_id": "20260426T014336Z__train-test__qwen-qwen3-32b-groq",
+  "started_at": "2026-04-26T01:43:36.833934+00:00",
+  "ended_at": "2026-04-26T02:05:40.812840+00:00",
+  "model": "Qwen/Qwen3-32B:groq",
+  "tier_pair": "train_test",
+  "scores": {
+    "train": 1.0,
+    "test": 0.027802445491806882
+  },
+  "action_counts": {
+    "train": {
+      "record_decision": 1
+    },
+    "test": {
+      "record_decision": 140,
+      "place_order": 4,
+      "advance_day": 151,
+      "view_portfolio": 6,
+      "sandbox_exec": 22
+    }
+  },
+  "llm_call_counts": {
+    "train": 1,
+    "test": 323
+  },
+  "notes": []
+}

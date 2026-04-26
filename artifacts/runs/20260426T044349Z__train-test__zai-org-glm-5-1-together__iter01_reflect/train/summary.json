@@ -1,0 +1,13 @@
+{
+  "phase": "train",
+  "attempts_used": 3,
+  "max_attempts": 3,
+  "used_fallback": true,
+  "regime_label": "mixed",
+  "intended_exposure": "0.8",
+  "uncertainty": "high",
+  "edge_summary": "Default equal-weight long across the universe.",
+  "reasoning": "Fallback after 3 attempts — model never emitted a parseable record_decision.",
+  "carry_strategy_chars": 203,
+  "study_packet_chars": 4202
+}

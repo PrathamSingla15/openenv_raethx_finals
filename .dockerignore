@@ -1,0 +1,21 @@
+# Local dev artifacts — don't ship in image
+.venv/
+venv/
+.git/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+artifacts/
+datasets/
+.idea/
+.vscode/
+.cursor/
+*.swp
+.DS_Store
+.env

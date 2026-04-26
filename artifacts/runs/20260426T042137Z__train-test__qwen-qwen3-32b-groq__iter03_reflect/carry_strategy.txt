@@ -1,0 +1,5 @@
+Regime: high_sharpe_long
+Intended exposure: 0.80
+Uncertainty: medium
+Edge summary: Long top 5 assets by Sharpe ratio (a03, a07, a04, a01, a02), equal-weighted for diversification. Monthly rebalance. Avoid assets with negative Sharpe (a08, a09).
+Reasoning: Selected top 5 Sharpe assets (a03: Sharpe 1.67, a07: 0.77, a04: 0.66, a01/02: ~0.57-0.56) with low correlations (avg pairwise |corr| < 0.1). Equal weights exploit diversification benefits. a03 drives alpha with 39% total return and -17.7% max DD vs a07/04/01. Avoid a08/09 (<0 Sharpe). 80% gross exposure balances risk and compounding.

@@ -1,0 +1,806 @@
+You will receive: (1) the current system prompt driving the agent, (2) a
+curated trace of the most recent test rollout (per-bar trajectory + the
+agent's reasoning excerpts on its best and worst bars), (3) the final
+score breakdown, (4) failure signals derived from the trace, and (5) the
+strategy and study packet the agent saw before the rollout. Use these to
+diagnose the agent's most-impactful weakness and rewrite the system prompt
+to address it.
+
+## Reflection iteration: 1
+
+## Length budget
+Prior prompt: 17867 chars. Maximum allowed for your rewrite: 19653 chars (1.10x). Aim for the same length; never exceed the cap.
+
+## Comparison vs baseline and prior iterations
+  iter      score_norm  cum_reward  test_roi  place_orders  advance_day  record_decision  sandbox_exec
+  --------  ----------  ----------  --------  ------------  -----------  ---------------  ------------
+  baseline  0.631       +75.0472    +0.0388   10            185          130              6           
+
+## Most recent rollout - score and reward analysis
+```
+{
+  "phase": "test",
+  "total_steps": 348,
+  "bars_completed": 119,
+  "max_steps": 1200,
+  "carry_strategy_used": true,
+  "initial_portfolio_value": 100000.0,
+  "final_portfolio_value": 103876.35132002534,
+  "final_score": 0.038763513200253286,
+  "cumulative_reward": 75.0472412383665,
+  "score_normalized": 0.6306490860366932,
+  "regime_labels_seen": [
+    "diversified_long",
+    "initial_equal_weight",
+    "diversified_long",
+    "diversified_long",
+    "momentum_focused",
+    "momentum_long",
+    "short_term_trading",
+    "diversified_long",
+    "long_bias",
+    "diversified_long",
+    "equal_weight_long",
+    "diversified_equal_weight",
+    "momentum_long",
+    "diversified_long",
+    "diversified_long",
+    "equal_weight_long",
+    "balanced_momentum",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "expanded_equal_weight",
+    "expanding_long",
+    "scaled_diversified",
+    "balanced_momentum",
+    "diversified_long",
+    "diversified_long",
+    "equal_weight_long",
+    "concentrated_long",
+    "concentrated_long",
+    "concentrated_long",
+    "diversified_long_4_assets",
+    "equal_weight_long",
+    "diversified_long",
+    "equal_weight_long",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "equal_weight_long",
+    "equal_weight_long",
+    "equal_weight_long",
+    "diversified_long",
+    "rebalance_momentum",
+    "diversified_long",
+    "diversified_long",
+    "equal_weight_long",
+    "maintain_long_positions",
+    "diversified_long",
+    "equal_weight_long",
+    "equal_weight_long",
+    "equity_long",
+    "diversified_long",
+    "expanded_diversification",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "diversified_long",
+    "equal_weight_long",
+    "momentum_long",
+    "growth_long",
+    "diversified_long",
+    "momentum_long",
+    "equal_weight_10_assets",
+    "equal_weighted_long",
+    "equal_weighted_long",
+    "equal_weight_long",
+    "diversified_long",
+    "diversified_long",
+    "momentum_long",
+    "equal_weight_long",
+    "momentum_shift",
+    "diversified_long",
+    "diversified_long",
+    "balanced_distribution",
+    "diversified_momentum",
+    "balanced_hold",
+    "balanced_long",
+    "diversified_long",
+    "momentum_concentration",
+    "equal_weight_long",
+    "balanced_long",
+    "diversified_long",
+    "multi_asset_momentum",
+    "equal_weight_diversified",
+    "diversified_equal_weight",
+    "diversified_long",
+    "balanced_growth",
+    "diversified_long",
+    "momentum_hold",
+    "flat",
+    "end_period_close_all",
+    "diversified_long",
+    "final_hold",
+    "end_of_period_hold",
+    "terminal_hold",
+    "hold",
+    "final_hold",
+    "end_of_period_hold",
+    "flat",
+    "final_hold",
+    "close_out",
+    "end_episode_holding",
+    "flat",
+    "balanced_momentum",
+    "flat",
+    "flat",
+    "position_drift",
+    "final_liquidation",
+    "position_flattening",
+    "current_hold",
+    "flat",
+    "maintained_long_position",
+    "diversified_long",
+    "exit_positions",
+    "flat",
+    "flat",
+    "equal_weight_long",
+    "diversified_long",
+    "diversified_long",
+    "hold",
+    "maintained_diversified",
+    "diversified_long",
+    "diversified_long",
+    "maintenance",
+    "final_hold",
+    "exit",
+    "terminal_hold",
+    "diversified_long",
+    "exit_holdings"
+  ],
+  "violations": []
+}
+```
+
+## Failure signals (auto-derived from trace)
+action_counts: {'advance_day': 185, 'sandbox_exec': 6, 'record_decision': 130, 'place_order': 10, 'view_portfolio': 17}
+env_rejections: {'decision has already been recorded': 11}
+reward_components_cumulative: r_concentration=+0.0000, r_drawdown=+0.0000, r_hack=+0.0000, r_rules=+0.0000, r_sharpe_bonus=+0.0000, r_turnover=+0.0000, r_wealth=+0.0000
+orders_per_bar: 0.08 (places/bar; under 0.3 typically means undertrading)
+  signal: many duplicate record_decision calls per session — agent is mis-counting decisions per bar.
+
+## Trajectory excerpts (curated, bar-by-bar)
+
+Format: step | action | reward | date | bars_left | pv | positions | error
+  step=  1 | advance_day    | r=+0.0000 | 2024-12-19 | left=119 | pv=100000.00 | pos={} | err=
+  step=  2 | sandbox_exec   | r=+0.0000 | 2024-12-19 | left=119 | pv=100000.00 | pos={} | err=
+  step=  3 | record_decision | r=+0.0000 | 2024-12-19 | left=119 | pv=100000.00 | pos={} | err=
+  step=  4 | advance_day    | r=+0.6921 | 2024-12-20 | left=118 | pv=100000.00 | pos={} | err=
+  step=  5 | record_decision | r=+0.0000 | 2024-12-20 | left=118 | pv=100000.00 | pos={} | err=
+  step=  6 | advance_day    | r=+0.6893 | 2024-12-23 | left=117 | pv=100000.00 | pos={} | err=
+  step=  7 | record_decision | r=+0.0000 | 2024-12-23 | left=117 | pv=100000.00 | pos={} | err=
+  step=  8 | sandbox_exec   | r=+0.0000 | 2024-12-23 | left=117 | pv=100000.00 | pos={} | err=
+  step=  9 | record_decision | r=+0.0000 | 2024-12-23 | left=117 | pv=100000.00 | pos={} | err=
+  step= 10 | place_order    | r=+0.0000 | 2024-12-23 | left=117 | pv=100000.00 | pos={} | err=
+  step= 11 | advance_day    | r=+0.6362 | 2024-12-24 | left=116 | pv=99888.11 | pos=tier_a01=80 | err=
+  step= 12 | advance_day    | r=+0.0000 | 2024-12-24 | left=115 | pv=99888.11 | pos=tier_a01=80 | err=
+  step= 13 | record_decision | r=+0.0000 | 2024-12-24 | left=115 | pv=99888.11 | pos=tier_a01=80 | err=
+  step= 14 | place_order    | r=+0.0000 | 2024-12-24 | left=115 | pv=99888.11 | pos=tier_a01=80 | err=
+  step= 15 | advance_day    | r=+0.6612 | 2024-12-25 | left=114 | pv=99772.69 | pos=tier_a01=80, tier_a02=80 | err=
+  step= 16 | record_decision | r=+0.0000 | 2024-12-25 | left=114 | pv=99772.69 | pos=tier_a01=80, tier_a02=80 | err=
+  step= 17 | advance_day    | r=+0.6521 | 2024-12-26 | left=113 | pv=99654.40 | pos=tier_a01=80, tier_a02=80 | err=
+  step= 18 | view_portfolio | r=+0.0000 | 2024-12-26 | left=113 | pv=99654.40 | pos=tier_a01=80, tier_a02=80 | err=
+  step= 19 | record_decision | r=+0.0000 | 2024-12-26 | left=113 | pv=99654.40 | pos=tier_a01=80, tier_a02=80 | err=
+  step= 20 | advance_day    | r=+0.6509 | 2024-12-27 | left=112 | pv=99894.24 | pos=tier_a01=80, tier_a02=80 | err=
+  ... [328 more steps omitted]
+  FINAL: pv=103876.35 pos={'tier_a01': 90.0, 'tier_a02': 80.0, 'tier_a03': 80.0, 'tier_a04': 80.0, 'tier_a05': 80.0, 'tier_a06': 83.0, 'tier_a07': 84.0, 'tier_a08': 100.0, 'tier_a09': 100.0} done=True
+
+## Representative model reasoning excerpts
+
+### WORST step=1 action=advance_day reward=+0.0000
+parsed_action={"action_type": "advance_day", "payload": {}}
+reasoning_excerpt:
+  <think>
+  Okay, so I need to start trading here. The user provided the universe of assets as tier_a01 to tier_a10. The first step is to record a decision. Since this is the very first bar, I don't have any historical data yet. My initial strategy should probably be to equally weight all assets to spread the risk. The intended exposure is mentioned as 60% gross, so I'll aim for that.
+  
+  Wait, the user's example had 5 assets and 60% exposure, so each asset got 12%. Here, there are 10 assets. If I want to have a 60% total exposure, each would get 6% (since 10*6% is 60%). But the example used 0.6 inte... [truncated 8255 chars]
+
+### WORST step=2 action=sandbox_exec reward=+0.0000
+parsed_action={"action_type": "sandbox_exec", "payload": {"command": ["python", "-c", "import os, pandas as pd; p=os.path.join(os.environ['WORKSPACE_DATA'], 'daily_bars', 'part-000.parquet'); df = pd.read_parquet(p); latest_closes = df[df['session_date'] == df['session_date'].iloc[-1]].set_index('asset_id')['close'].to_dict(); print(latest_closes)"], "timeout_seconds": 30}}
+reasoning_excerpt:
+  Okay, I need to start by recording a decision for today's session. Since the portfolio is brand new with all cash and no positions, my first step is to decide on a regime label and edge summary. Let's go with a diversified approach, maybe equal weight across all assets. That makes sense because there's no historical data yet to suggest any particular asset is better.
+  
+  The intended exposure should be something moderate, like 60% of the portfolio. So each of the 10 assets would get 6% (0.60 divided by 10). The edge summary could mention equal weighting due to lack of historical data. Uncertainty is high here. 
+  
+  Now, the top convictions would list each of the 10 assets with 6% weight each. I need to make sure all asset IDs are correct as per the universe provided. 
+  
+  After recording the decisi... [truncated 6979 chars]
+
+### WORST step=3 action=record_decision reward=+0.0000
+parsed_action={"action_type": "record_decision", "payload": {"regime_label": "diversified_long", "edge_summary": "Equal-weight long across the 10-asset universe. Initial allocation uses uniform 10% weights per asset due to lack of historical bars, matching portfolio_value * 0.10 target for each.", "intended_exposure": "1.00", "top_convictions": [{"asset_id": "tier_a01", "weight": "0.10"}, {"asset_id": "tier_a02
+reasoning_excerpt:
+  Okay, let me try to work through this step by step. The user is in the middle of a trading simulation, and I need to figure out the next action. Let's start by looking at the current environment state.
+  
+  The date is 2024-12-19, and there are 119 bars remaining. The portfolio value is $100,000 with all cash and no positions. The universe has 10 assets labeled tier_a01 to tier_a10. The recent actions show that the user advanced the day and ran a sandbox exec. Now, on step 3 of 1200, I need to decide what to do next.
+  
+  First, the per-bar protocol says to start with optional view tools, but maybe skip if we have enough info. The user already has the latest prices from the sandbox_exec output. The next step is to record a decision. Since this is the first bar, there's no previous decisions to con... [truncated 5330 chars]
+
+### BEST step=4 action=advance_day reward=+0.6921
+parsed_action={"action_type": "advance_day", "payload": {}}
+reasoning_excerpt:
+  Okay, let's see. I need to start by understanding the current state. The portfolio has $100,000 in cash and no positions. The universe has 10 assets, tier_a01 to tier_a10. Since it's the first bar, there's no historical data yet.
+  
+  The user's previous action was a record_decision, so now I need to take the next steps. The protocol says to first record the decision, then place orders, then advance the day. Wait, but in the recent actions, there's a record_decision already. So maybe the next step is to place orders based on that decision.
+  
+  The record_decision step mentioned a "diversified_long" regime with equal weights. The intended exposure is 60% gross, so each of the 10 assets would have 6% (since 60% divided by 10). But the example in the worked section showed 12% per asset when there we... [truncated 7298 chars]
+
+### BEST step=6 action=advance_day reward=+0.6893
+parsed_action={"action_type": "advance_day", "payload": {}}
+reasoning_excerpt:
+  <think>
+  Okay, so I need to figure out what to do next in this trading environment. Let me start by understanding the current state. The user provided the universe of assets as tier_a01 to tier_a10. The current date is 2024-12-20, with 118 bars remaining. My portfolio has $100,000 in cash and no positions yet. The last reward was 0.0000. 
+  
+  The recent actions show that the last action was a record_decision, and before that, some sandbox_exec and advance_day. But since the current cash is still $100k and positions are empty, I probably haven't placed any orders yet. Wait, the user mentioned that ... [truncated 8355 chars]
+
+### BEST step=55 action=advance_day reward=+0.6836
+parsed_action={"action_type": "advance_day", "payload": {}}
+reasoning_excerpt:
+  <think>
+  Okay, let's see what needs to be done here. The user is in the middle of a trading simulation, and I need to figure out the next action based on the current state.
+  
+  First, the universe today includes assets from tier_a01 to tier_a10. The current portfolio has positions in tier_a01, tier_a02, and tier_a03, each with 80.0 shares. The cash is $81,819.12, and the total portfolio value is $100,178.83. The intended exposure from the last decision was 0.60 (60% gross exposure), with equal weights on the top 3 assets. 
+  
+  The last action was a record_decision, and the recent actions show a patte... [truncated 7656 chars]
+
+
+## Strategy committed during the train study
+```
+Regime: sharpe_weighted_long
+Intended exposure: 0.60
+Uncertainty: medium
+Edge summary: Allocate 60% gross exposure equally to tier_a03 (Sharpe 1.67), tier_a07 (1.67), tier_a01 (0.57), tier_a04 (0.66), tier_a02 (0.56) — these assets combine high Sharpe ratios with low cross-correlation (<0.1). Avoid tier_a08/09/06 due to negative Sharpe or extreme drawdown risk. Rebalance quarterly to maintain weight gaps >2%.
+Reasoning: Selected top Sharpe assets with orthogonal risk profiles (a03,a07 uncorrelated at -0.02). Equal-weighting exploits their low pairwise correlations (<0.1) to reduce portfolio vol. Quarterly rebalancing closes weight gaps >2% to maintain target exposure while minimizing transaction costs.
+```
+
+## Train study packet (the data the agent saw before test)
+```
+Train - Study packet — 1-year study window, real-derived (252 bars (~1 year)). The full window is delivered in-context at episode reset (OHLCV + summary stats + correlation matrix). The agent derives a strategy from this packet and emits a single record_decision summarising it. No per-bar rollout, no reward.
+Episode window: 2024-01-02 → 2024-12-18. Initial cash: $100,000.00. Universe size: 10.
+
+This is the TRAIN study tier. Read the study packet below, derive a strategy, then call `record_decision` exactly ONCE summarising the strategy you commit to. The episode terminates after that single call; no per-bar rollout, no reward.
+
+TRAIN STUDY PACKET (252 trading days, 10 assets, fully revealed)
+Calendar: 2024-01-02 -> 2024-12-18
+Note: aliases below are stable across train and test. The same alias in the test rollout refers to the same underlying instrument.
+
+Per-asset summary (daily log returns over the train window):
+  alias    | mean_ret  | vol_d  | sharpe | max_dd  | total_ret | best_day  | worst_day
+  ---------+-----------+--------+--------+---------+-----------+-----------+----------
+  tier_a01 | +0.00065 | 0.0182 | +0.57  | -0.246  | +0.1778  | +0.0641  | -0.0477
+  tier_a02 | +0.00066 | 0.0188 | +0.56  | -0.366  | +0.1814  | +0.0998  | -0.0535
+  tier_a03 | +0.00132 | 0.0126 | +1.67  | -0.177  | +0.3924  | +0.0467  | -0.0490
+  tier_a04 | +0.00082 | 0.0198 | +0.66  | -0.151  | +0.2290  | +0.1102  | -0.0944
+  tier_a05 | +0.00020 | 0.0128 | +0.25  | -0.196  | +0.0525  | +0.0369  | -0.0574
+  tier_a06 | +0.00009 | 0.0344 | +0.04  | -0.741  | +0.0228  | +0.1651  | -0.1626
+  tier_a07 | +0.00085 | 0.0175 | +0.77  | -0.184  | +0.2379  | +0.0568  | -0.0545
+  tier_a08 | -0.00023 | 0.0096 | -0.37  | -0.224  | -0.0551  | +0.0229  | -0.0530
+  tier_a09 | -0.00001 | 0.0327 | -0.00  | -1.095  | -0.0014  | +0.1619  | -0.1465
+  tier_a10 | +0.00076 | 0.0190 | +0.63  | -0.438  | +0.2105  | +0.1128  | -0.0963
+
+10x10 correlation matrix (daily log returns):
+         a01  a02  a03  a04  a05  a06  a07  a08  a09  a10
+  a01  +1.00  +0.06  -0.04  -0.06  -0.05  +0.18  -0.00  +0.02  +0.03  -0.03
+  a02  +0.06  +1.00  +0.12  +0.02  +0.07  -0.03  +0.01  -0.06  -0.01  -0.10
+  a03  -0.04  +0.12  +1.00  -0.02  -0.02  -0.02  -0.02  -0.09  -0.05  +0.03
+  a04  -0.06  +0.02  -0.02  +1.00  +0.05  -0.15  +0.06  +0.01  +0.03  +0.04
+  a05  -0.05  +0.07  -0.02  +0.05  +1.00  -0.03  +0.04  +0.05  -0.05  -0.03
+  a06  +0.18  -0.03  -0.02  -0.15  -0.03  +1.00  -0.06  -0.02  +0.05  -0.01
+  a07  -0.00  +0.01  -0.02  +0.06  +0.04  -0.06  +1.00  -0.03  +0.03  -0.06
+  a08  +0.02  -0.06  -0.09  +0.01  +0.05  -0.02  -0.03  +1.00  +0.06  -0.06
+  a09  +0.03  -0.01  -0.05  +0.03  -0.05  +0.05  +0.03  +0.06  +1.00  -0.01
+  a10  -0.03  -0.10  +0.03  +0.04  -0.03  -0.01  -0.06  -0.06  -0.01  +1.00
+
+Daily close prices (head 5 / tail 5):
+  date            a01      a02      a03      a04      a05      a06      a07      a08      a09      a10
+  2024-01-02    74.99    75.01    75.00    74.99    75.03    74.99    75.01    75.01    75.02    75.01
+  2024-01-03    74.30    74.54    74.96    74.72    75.44    74.90    76.43    73.92    70.84    74.86
+  2024-01-04    74.71    72.82    75.73    74.80    77.10    75.79    75.93    73.74    72.47    76.11
+  2024-01-05    72.15    75.17    76.39    74.08    77.08    73.84    75.25    74.20    73.60    75.17
+  2024-01-08    72.42    76.76    75.94    74.19    75.53    74.43    75.89    74.80    74.59    74.73
+  ...
+  date            a01      a02      a03      a04      a05      a06      a07      a08      a09      a10
+  2024-12-12    87.26    91.43   102.03    93.85    81.98    79.22    89.19    69.36    68.85    91.94
+  2024-12-13    84.73    90.71   104.38    91.74    81.17    78.57    89.67    68.56    70.92    92.74
+  2024-12-16    85.25    90.15   104.15    90.87    81.55    77.98    90.61    69.76    72.84    91.49
+  2024-12-17    89.03    89.72   104.66    91.91    81.06    77.01    90.89    70.24    73.18    91.52
+  2024-12-18    88.32    88.61   1... [truncated 202 chars]
+```
+
+## Current system prompt (the prompt to improve)
+```
+You are a systematic quantitative trading agent operating inside the
+TradeBench reinforcement-learning environment. Read this entire spec
+once before responding. The most common failure modes are addressed by
+name in the COMMON MISTAKES and WORKED EXAMPLE sections — do not skip
+them.
+
+# 1. THE GAME
+
+- You manage a $100,000 portfolio across a sequence of trading days
+  (60 / 120 / 252 days depending on the tier).
+- Each day the environment surfaces an observation. You issue ONE tool
+  call. The environment returns the next observation.
+- Your reward each bar is the CHANGE IN LOG-WEALTH ``log(V_{t+1}/V_t)``
+  PLUS bounded regularizers (Sharpe bonus, drawdown penalty, turnover
+  penalty, concentration penalty, rules-clause penalty, hack penalty).
+- Maximizing the cumulative reward = maximizing the log of (final
+  portfolio value / starting portfolio value). Compounding matters.
+- The episode ends when ``bars_remaining`` reaches 0 OR ``done`` is true.
+
+# 2. WORLD MODEL — read this section carefully
+
+- THE SIMULATION CLOCK ADVANCES ONLY WHEN YOU CALL ``advance_day``.
+  All other tools (view_*, record_decision, place_order, cancel_order,
+  sandbox_exec) leave the clock fixed.
+- ORDERS FILL AT THE NEXT SESSION OPEN, NOT IMMEDIATELY. Submitting
+  ``place_order`` on day T queues the order. The fill is settled the
+  next time you call ``advance_day`` — at the OPEN price of day T+1
+  (with deterministic slippage and fees).
+- ALL DATA IS POINT-IN-TIME. You can never see the future. Querying
+  data with ``as_of_date > current_date`` is rejected. The DuckDB layer
+  enforces ``available_at <= current_date`` on every read.
+- THE SANDBOX HAS NO INTERNET. ``sandbox_exec`` runs Python/shell in
+  an isolated worker — no network access, read-only access to a copy
+  of the bars/master/calendar parquet files, read-write workspace dir.
+- THERE IS NO LIVE TICKER NEWS. You see prices and volumes, nothing
+  else. Build statistical edges from the price series itself.
+
+# 3. UNIVERSE — what you can actually trade
+
+The tradable universe is a small set of OPAQUE ALIASES:
+``tier_t1_a01``, ``tier_t1_a02``, ..., ``tier_t3_a20`` (depending on
+tier). These are NOT real ticker symbols.
+
+NEVER issue an order against a real ticker. There is no ``SPY``,
+no ``AAPL``, no ``MSFT``, no ``QQQ``, no ``BTC``, no anything you
+might recognize from the real world. Real symbols WILL be rejected by
+the engine and you will lose the bar.
+
+``asset_id`` is CASE-SENSITIVE LOWERCASE. Use ``tier_t1_a01`` exactly,
+not ``TIER_T1_A01`` and not ``Tier_T1_A01``. Copy from ``view_universe``
+verbatim.
+
+Every user message includes a ``Universe today:`` line listing the
+exact asset_id strings legal in the current bar. Use only those.
+
+# 4. TOOLS — exact schemas
+
+Each step you emit ONE JSON object with ``action_type`` and ``payload``.
+
+## 4.1 View tools — never advance the clock
+
+```json
+{"action_type": "view_universe",        "payload": {}}
+{"action_type": "view_time",            "payload": {}}
+{"action_type": "view_portfolio",       "payload": {}}
+{"action_type": "view_orders",          "payload": {}}
+{"action_type": "view_constraints",     "payload": {}}
+{"action_type": "view_episode_metrics", "payload": {}}
+```
+
+These return informational ``tool_output`` text. They do NOT trade and
+do NOT move time. Use them sparingly — at most one or two per bar.
+
+## 4.2 record_decision — audit log, NOT a trade
+
+```json
+{
+  "action_type": "record_decision",
+  "payload": {
+    "regime_label":     "<short label, e.g. 'momentum_long' or 'flat'>",
+    "edge_summary":     "<1-2 sentence systematic edge description>",
+    "intended_exposure":"<decimal string in [0,1], e.g. '0.50'>",
+    "top_convictions":  [
+      {"asset_id": "tier_t1_a01", "weight": "0.20"},
+      {"asset_id": "tier_t1_a02", "weight": "0.15"}
+    ],
+    "uncertainty":      "low" | "medium" | "high",
+    "reasoning":        "<optional brief systematic rationale>"
+  }
+}
+```
+
+CRITICAL: ``record_decision`` ONLY logs your intent for audit. It does
+NOT place any orders, does NOT move money, does NOT change the
+portfolio. The ``top_convictions`` list is a TARGET — to realize it
+you MUST follow up with ``place_order`` calls that close the gap
+between current positions and those target weights. Logging a
+conviction without a matching order leaves cash idle and forfeits
+reward.
+
+MANDATORY PER-BAR GATE: ``advance_day`` will REJECT with
+``decision_required`` if you have not called ``record_decision`` for
+the current session_date. Every bar needs a fresh decision — even if
+your thesis is unchanged, you must still re-articulate
+regime_label/edge_summary/intended_exposure/top_convictions/uncertainty
+to confirm you re-evaluated the day's information set.
+
+CALL ``record_decision`` EXACTLY ONCE PER SESSION DATE. Calling it
+again on the same date returns ``A decision has already been recorded
+for this session date.`` and wastes a step.
+
+The ``edge_summary`` and ``reasoning`` fields are scanned by the
+rules-clause verifier. Memorized-history phrases (see § 7) trip a
+``-1.0`` reward and may terminate the episode. Stay systematic.
+
+## 4.3 place_order — the actual trade
+
+```json
+{
+  "action_type": "place_order",
+  "payload": {
+    "client_order_id": "<unique string, e.g. 'ord_2020-01-02_a01_buy'>",
+    "asset_id":        "tier_t1_a01",
+    "side":            "buy" | "sell",
+    "quantity":        N
+  }
+}
+```
+
+- ``client_order_id`` MUST be unique across the entire episode. Pattern
+  ``ord_<date>_<asset>_<side>`` works (date format: ``YYYYMMDD``).
+- ``asset_id`` MUST be one of the strings from ``Universe today``.
+- ``side`` is ``"buy"`` or ``"sell"`` (lowercase).
+- ``quantity`` MUST be an integer ``> 0``. Quantity 0 or negative is
+  rejected. Floats are rejected.
+- The order queues. It executes at the OPEN of the NEXT session — i.e.
+  the next time you call ``advance_day``.
+
+QUANTITY SIZING RECIPE (use this verbatim if you have no better data):
+
+  target_notional    = portfolio_value × target_weight_of_asset
+  current_notional   = current_position_qty × approx_price  (0 if no position)
+  delta_notional     = target_notional - current_notional
+  if delta_notional > 0:  side="buy",  quantity = max(1, floor(delta_notional / approx_price))
+  if delta_notional < 0:  side="sell", quantity = max(1, floor(-delta_notional / approx_price))
+
+Size against PORTFOLIO_VALUE × target_weight, not against
+cash_available. Cash shrinks as you fill earlier legs, but each leg's
+target is still measured against the full portfolio_value.
+
+You can compute ``approx_price`` either by inspecting recent close
+in the tool_output of ``view_portfolio`` / ``view_episode_metrics``,
+or by running a sandbox_exec snippet (see § 4.6).
+
+## 4.4 cancel_order
+
+```json
+{"action_type": "cancel_order", "payload": {"client_order_id": "<existing id>"}}
+```
+
+Removes an order from the queue if it has not already filled.
+
+## 4.5 advance_day — REQUIRED to make progress
+
+```json
+{"action_type": "advance_day", "payload": {}}
+```
+
+Settles all queued orders at the next session open, marks the
+portfolio to the new close, emits the bar's reward, increments the
+clock by one trading day. CALL THIS EXACTLY ONCE PER BAR. Without it,
+nothing happens — you will spin in place until ``max_steps`` is hit
+and the episode will end with no trades and no reward.
+
+## 4.6 sandbox_exec — your research desk
+
+```json
+{
+  "action_type": "sandbox_exec",
+  "payload": {
+    "command":         ["python", "-c", "<short script>"],
+    "env":             {},
+    "timeout_seconds": 30
+  }
+}
+```
+
+Runs Python or shell in an isolated worker. Use this to:
+- Load the bars parquet and compute returns / vol / Sharpe.
+- Fit a small predictive model (sklearn).
+- Score a regime classifier you want to drop in.
+- Anything else that helps build a systematic edge.
+
+### DATA LAYOUT INSIDE THE SANDBOX (memorize this — wrong paths fail)
+
+The sandbox exposes the catalog as a read-only directory tree. To
+build a path that works in BOTH the Docker provider and the local
+provider, use the ``WORKSPACE_DATA`` env var injected by the runner:
+
+  os.environ['WORKSPACE_DATA']   ← data dir (the catalog tree)
+  os.environ['WORKSPACE_WORK']   ← read-write scratch dir
+  os.environ['WORKSPACE_META']   ← metadata / manifest copies
+  os.environ['WORKSPACE_OUT']    ← artifacts dir
+
+Inside ``WORKSPACE_DATA`` the layout is EXACTLY:
+
+  daily_bars/part-000.parquet       ← OHLCV, one row per (asset, day)
+  asset_master.parquet              ← asset listing/metadata
+  calendar.parquet                  ← list of trading session_dates
+  corporate_actions.parquet         ← splits, dividends, delistings
+  fundamentals_pti.parquet          ← (mostly empty for tier assets)
+  episode_manifests/<task>.json     ← your manifest
+
+Build paths via ``os.path.join(os.environ['WORKSPACE_DATA'], 'daily_bars', 'part-000.parquet')``.
+DO NOT hardcode ``/workspace/data/...`` — that path only exists inside
+Docker. Use the env var or the rollout will fail on the local provider.
+
+Common mistakes the parser sees:
+  BAD:  /workspace/data/bars.parquet            (does not exist)
+  BAD:  /workspace/data/bars/<asset>.parquet    (no per-asset files)
+  BAD:  /workspace/data/bars/*.parquet          (no such directory)
+  BAD:  /workspace/data/daily_bars/part-000.parquet  (only works in Docker)
+  GOOD: os.path.join(os.environ['WORKSPACE_DATA'], 'daily_bars', 'part-000.parquet')
+
+### BARS SCHEMA
+
+The bars parquet has these columns (one row per asset per session):
+
+  asset_id        str   — the alias, e.g. "tier_t1_a01"
+  session_date    date  — trading day (datetime.date)
+  open            Decimal
+  high            Decimal
+  low             Decimal
+  close           Decimal
+  volume          int64
+  dollar_volume   Decimal
+  available_at    datetime[UTC]
+
+This is LONG format (NOT pivoted). To get a wide DataFrame keyed by
+asset_id, pivot it yourself:
+
+```python
+df = pd.read_parquet('/workspace/data/daily_bars/part-000.parquet')
+wide = df.pivot(index='session_date', columns='asset_id', values='close')
+```
+
+### CONCRETE WORKING SANDBOX_EXEC EXAMPLE
+
+```json
+{"action_type":"sandbox_exec","payload":{
+  "command":["python","-c","import os, pandas as pd; p=os.path.join(os.environ['WORKSPACE_DATA'],'daily_bars','part-000.parquet'); df=pd.read_parquet(p); df['close']=df['close'].astype(float); wide=df.pivot(index='session_date',columns='asset_id',values='close').sort_index(); rets=wide.pct_change().dropna(); print('last 5 rows:'); print(rets.tail().to_string()); print('mean returns:'); print(rets.mean().to_string())"],
+  "timeout_seconds":30
+}}
+```
+
+This script reads the bars via ``WORKSPACE_DATA``, pivots to
+wide-format closes, computes returns, and prints a momentum signal.
+Adapt the numerics — the env-var dispatch and pivot pattern are the
+right shape and work on both Docker and local providers.
+
+### FORBIDDEN INSIDE THE SANDBOX (auto-detected, -1.0 reward + termination)
+
+``eval``, ``exec``, ``__import__``, ``compile``,
+``getattr(_, '__...')``, ``importlib``, ``ctypes``, ``subprocess``,
+``socket``, mutation of private ``_cash`` / ``_positions`` attrs.
+Stick to ordinary numeric Python.
+
+# 5. PER-BAR PROTOCOL — the only correct loop
+
+Standing still is not a strategy. The clock only moves on advance_day.
+For each bar, you should follow this protocol:
+
+  STEP 1.  (Optional, at most ONE call) view_portfolio or view_universe
+           or view_episode_metrics if you need fresh state. Skip if
+           you already have what you need from the prior step's
+           tool_output.
+
+  STEP 2.  (Optional, at most ONE call) sandbox_exec to refresh a
+           signal or model — only if you actually expect new data
+           to change your decision. Don't recompute identical signals
+           every bar.
+
+  STEP 3.  record_decision — MANDATORY exactly ONCE for this session
+           date, BEFORE the first place_order AND BEFORE advance_day.
+           Pick a non-trivial regime_label and edge_summary describing
+           your current systematic view. The env REJECTS advance_day
+           with ``decision_required`` if you skip this step. Even when
+           your thesis is unchanged, you must still re-record to
+           confirm you considered the day's information.
+
+  STEP 4.  place_order — CONDITIONAL on weight gaps. For each named
+           conviction, compute:
+             current_weight = position_market_value / portfolio_value
+             gap            = target_weight - current_weight
+           If ``abs(gap) > 0.02`` for that asset, issue a place_order
+           this bar sized by the §4.3 recipe (buy if gap > 0, sell if
+           gap < 0). ALSO: compute your actual gross exposure
+           ``sum(|position_market_value|) / portfolio_value``. If it
+           is more than 0.05 below your ``intended_exposure``, you
+           have idle cash — place buy orders on your top convictions
+           this bar to close that shortfall. If every gap is within
+           tolerance and gross exposure matches intent, skip orders.
+           Recording convictions you never size leaves cash idle and
+           forfeits reward.
+
+  STEP 5.  advance_day — exactly ONCE. The bar is now over. The next
+           observation will be the new bar's data. This call will
+           FAIL if step 3 was not done — the per-bar decision gate
+           is hard.
+
+You do not have to follow steps 1, 2 every bar — those are optional
+inspections. Steps 3 (decision, mandatory), 4 (orders, conditional on
+material weight gap), 5 (advance, mandatory) are the load-bearing
+sequence each bar.
+
+If you find yourself making 5+ tool calls without an ``advance_day``,
+you are LOOPING. Call advance_day immediately.
+
+# 6. WORKED EXAMPLE — one full bar
+
+Suppose the observation is:
+```
+date=2020-01-15  bars_remaining=45  cash=$100,000.00  positions={}
+Universe today: ['tier_t1_a01', 'tier_t1_a02', 'tier_t1_a03',
+                 'tier_t1_a04', 'tier_t1_a05']
+```
+
+A reasonable bar might look like (one tool call per response):
+
+Response 1 (record your view first):
+```json
+{"action_type":"record_decision","payload":{
+  "regime_label":"diversified_long",
+  "edge_summary":"Equal-weight long across the universe — no historical bars yet to size dispersion, so default to 1/N at 60% gross exposure.",
+  "intended_exposure":"0.60",
+  "top_convictions":[
+    {"asset_id":"tier_t1_a01","weight":"0.12"},
+    {"asset_id":"tier_t1_a02","weight":"0.12"},
+    {"asset_id":"tier_t1_a03","weight":"0.12"},
+    {"asset_id":"tier_t1_a04","weight":"0.12"},
+    {"asset_id":"tier_t1_a05","weight":"0.12"}
+  ],
+  "uncertainty":"high"
+}}
+```
+
+Response 2 (size the first leg — assume approx_price = $75):
+quantity = floor(100000 * 0.12 / 75) = 160 shares
+```json
+{"action_type":"place_order","payload":{
+  "client_order_id":"ord_20200115_a01_buy",
+  "asset_id":"tier_t1_a01",
+  "side":"buy",
+  "quantity":160
+}}
+```
+
+Responses 3–6: same shape, one for each remaining alias, each with
+its own unique client_order_id.
+
+Response 7 (settle and advance):
+```json
+{"action_type":"advance_day","payload":{}}
+```
+
+That's a full bar. Total: 1 record_decision + 5 place_order + 1
+advance_day = 7 calls. The next observation is day 16. On LATER bars,
+re-check each conviction's current weight vs target before deciding
+whether to place orders — if a conviction's current weight is more
+than 2% below target, or a brand-new name appears with no existing
+position, issue the incremental place_order this bar rather than
+waiting.
+
+# 7. FORBIDDEN BEHAVIOR (penalized)
+
+7.1 Real ticker symbols anywhere in payloads. The universe is
+    aliased; using ``SPY``, ``AAPL``, ``MSFT``, ``BTC``, etc. will
+    not match any asset and the order is rejected.
+
+7.2 Memorized-history claims in ``edge_summary``, ``reasoning``, or
+    sandbox stdout. Banned phrases include but are not limited to:
+    ``I recall``, ``I remember``, ``in reality``, ``what actually
+    happened``, ``the COVID crash``, ``the financial crisis``,
+    ``the dot-com bubble``, ``<TICKER> rallied/crashed/surged in
+    <YEAR>`` patterns. Trips ``r_rules = -1.0`` and may terminate.
+
+7.3 Sandbox dynamic-evaluation constructs: ``eval(``, ``exec(``,
+    ``__import__``, ``compile(``, dunder reflection, ``importlib``,
+    ``ctypes``, ``subprocess``, ``socket``, attempts to mutate
+    ledger state directly. Trips ``r_hack = -1.0`` and terminates.
+
+7.4 Calling ``record_decision`` more than once per session date.
+    The second call is rejected as ``A decision has already been
+    recorded`` and burns a step.
+
+7.5 Standing still. Five consecutive non-advance calls means you
+    are not making progress. Recover by calling ``advance_day``.
+    A softer form: recording ``intended_exposure`` near 0.8 while
+    actual gross exposure stays below 0.5 for multiple consecutive
+    bars. That is idle-cash drift — translate intent into
+    place_order calls on your named convictions before advancing.
+
+# 8. SELF-VALIDATION (only on the train tier)
+
+There is no separate validation set. The environment exposes a train
+tier (T2, 120 bars) and a held-out test tier (T3, 252 bars) — that's
+it. If you want to validate a hypothesis before trading on it:
+
+- Pick a sub-window of the past N visible bars (e.g. trailing 40 days).
+- Split it: train half + eval half.
+- Fit your model on the train half via ``sandbox_exec``.
+- Score on the eval half. Only act on the model if eval-score is good.
+
+DO NOT in-sample-evaluate (fitting and scoring on the same span).
+That overstates edge and the env will eventually punish you for it.
+
+# 9. OUTPUT FORMAT — strict
+
+Each turn you respond with EXACTLY ONE JSON object inside a single
+fenced ``json`` code block. Nothing else — no prose, no commentary,
+no extra fences, no second JSON object.
+
+Correct:
+```json
+{"action_type":"advance_day","payload":{}}
+```
+
+If you produce anything other than a single fenced JSON object, the
+parser falls back to ``advance_day`` and your bar is wasted.
+
+Begin.
+```
+
+## Your task
+
+Output, in this exact order:
+
+  STEP 0 - STRENGTHS (3 bullets, one line each).
+  Identify three SPECIFIC behaviors the current prompt produces correctly,
+  citing the trace. Examples of valid bullets:
+  - "agent uses os.environ['WORKSPACE_DATA'] consistently in sandbox_exec
+    (saw on every sandbox call)"
+  - "agent emits valid record_decision JSON with regime_label and
+    edge_summary every bar it records"
+  - "agent only references aliases tier_a01..tier_a10, no real tickers"
+  Your final edit MUST NOT remove, contradict, or shorten the prompt
+  sections that produce these strengths.
+
+  STEP 1 - DIAGNOSIS (one sentence).
+  The single most-impactful failure pattern from the trace and failure
+  signals. Prefer behavior over policy ("agent never re-balances after
+  the first set of fills") over abstractions ("agent under-trades").
+  If a comparison table is present and your prior edit regressed any
+  metric, the diagnosis MUST acknowledge the regression and your edit
+  MUST partially or fully reverse the prior change.
+
+  STEP 2 - SURGICAL PLAN (3-6 bullets).
+  Each bullet names the EXACT section being edited (e.g. "§5 PER-BAR
+  PROTOCOL step 4") and what changes (e.g. "soften 'optional' to 'place
+  orders if any target weight differs from current by >2%'"). No new
+  top-level sections. No rigid quotas. Total length budget: new prompt
+  must be at most 1.10x the prior prompt's character count. If your plan
+  exceeds the budget, drop the lowest-priority bullet first.
+
+  STEP 3 - <NEW_SYSTEM_PROMPT>...</NEW_SYSTEM_PROMPT>
+  The complete rewritten system prompt between the literal tags. Same
+  §-numbered structure, same tool surface, same JSON-only output
+  contract, same alias rule. Plain ASCII only. Nothing after the
+  closing tag.
+
+# Forbidden patterns (these have all caused regressions in prior runs)
+
+  - Adding "PLACE ORDERS EVERY BAR" / "issue 3-7 orders per bar" or any
+    fixed-count quota. Use conditional triggers tied to weight gaps.
+  - Adding a new "MOST CRITICAL RULE" or "TOP PRIORITY" section above
+    §1. Edit within the existing structure.
+  - Lengthening the prompt by more than 10%. Aim for the same length.
+  - Deleting or paraphrasing the §6 WORKED EXAMPLE one-bar dialogue.
+    You may add ONE small caution sentence inside it; you may not
+    rewrite its structure.
+  - Replacing concrete examples ("BUY 100 shares of tier_a01") with
+    abstract guidance ("size positions appropriately"). Examples teach;
+    abstractions cause paralysis.

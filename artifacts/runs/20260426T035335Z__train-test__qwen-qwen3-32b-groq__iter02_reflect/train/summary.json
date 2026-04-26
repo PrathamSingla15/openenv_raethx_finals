@@ -1,0 +1,13 @@
+{
+  "phase": "train",
+  "attempts_used": 1,
+  "max_attempts": 3,
+  "used_fallback": false,
+  "regime_label": "high-sharpe_diversified_long",
+  "intended_exposure": "0.60",
+  "uncertainty": "medium",
+  "edge_summary": "Long positions in top 5 Sharpe ratio assets (tier_a03, tier_a07, tier_a01, tier_a10, tier_a02) weighted by (Sharpe ratio / volatility) with equal volatility normalization. Monthly rebalance, 60% gross exposure, liquidation if Sharpe < 0.5",
+  "reasoning": "Selected top 5 assets by Sharpe ratio (a03,a07,a01,a10,a02) which show positive returns and low correlations (-0.04 to +0.12). Applied risk parity weights scaled by Sharpe ratio (a03:1.67,a07:0.77). Monthly rebalancing ensures positions adapt to changing risk/return profiles. Kill-switch: liquidate positions if realized Sharpe < 0.5 over 20-day window.",
+  "carry_strategy_chars": 699,
+  "study_packet_chars": 4202
+}

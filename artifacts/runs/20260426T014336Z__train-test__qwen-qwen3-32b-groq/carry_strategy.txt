@@ -1,0 +1,5 @@
+Regime: sharpe_weighted_diversified
+Intended exposure: 0.80
+Uncertainty: medium
+Edge summary: Select top 5 assets by Sharpe ratio (tier_a03=+1.67, tier_a07=+0.77, tier_a01=+0.57, tier_a02=+0.56, tier_a10=+0.63). Allocate weights proportionally to their Sharpe ratios, normalized to avoid crowding. Exclude assets with negative Sharpe. Rebalance monthly unless portfolio Sharpe falls below +0.5 for 3 consecutive days (kill switch).
+Reasoning: High-Sharpe assets (a03,a07) show low cross-correlation (-0.02 to +0.03). The top 5 capture ~80% of cumulative Sharpe across the portfolio. Diversification reduces volatility while maintaining exposure to risk-adjusted returns. Avoid overbetting on any one asset (max 35% of a03). The kill switch addresses drawdown risk from regime shifts.

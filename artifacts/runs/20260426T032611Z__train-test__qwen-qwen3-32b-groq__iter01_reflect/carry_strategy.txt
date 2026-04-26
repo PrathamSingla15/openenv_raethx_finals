@@ -1,0 +1,5 @@
+Regime: high_sharpe_long
+Intended exposure: 1.00
+Uncertainty: medium
+Edge summary: Long positions in top 6 assets by Sharpe ratio (a03,a07,a04,a01,a02,a10) with equal risk-targeted allocations (16.67% each), rebalanced periodically. Excludes assets with negative risk-adjusted returns.
+Reasoning: Selected assets based on Sharpe ratio (>0.5) and diversification potential (low cross-asset correlation). a03 (Sharpe 1.67) leads portfolio while a07/04/01/02/10 provide complementary risk-return characteristics. Full exposure maximizes compounding. Kill-switch: liquidate if any asset's 20d Sharpe < -0.5.

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 240" width="100%">
+    <rect width="880" height="240" fill="#0A0E13"/>
+
+    <text x="40" y="36" font-family="JetBrains Mono, monospace" font-size="11"
+          fill="#22D3EE" letter-spacing="2">WALK-FORWARD WINDOW · T1 · T2 · T3</text>
+
+    <!-- T1 segment: 2020-01 → 2020-03 -->
+    <rect x="40"  y="60" width="120" height="40" fill="rgba(34,211,238,0.30)" rx="3"/>
+    <text x="100" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace"
+          font-size="12" fill="#E6E8EB" letter-spacing="1.4">T1 · 60 BARS</text>
+
+    <!-- embargo -->
+    <rect x="160" y="60" width="40"  height="40" fill="#1A2029" rx="3"
+          stroke="#1F2731" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="180" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace"
+          font-size="9" fill="#7A8693">embargo</text>
+
+    <!-- T2 segment: 2020-06 → 2020-11 -->
+    <rect x="200" y="60" width="240" height="40" fill="rgba(34,211,238,0.50)" rx="3"/>
+    <text x="320" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace"
+          font-size="12" fill="#0A0E13" letter-spacing="1.4">T2 · 120 BARS</text>
+
+    <!-- embargo -->
+    <rect x="440" y="60" width="40"  height="40" fill="#1A2029" rx="3"
+          stroke="#1F2731" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="460" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace"
+          font-size="9" fill="#7A8693">embargo</text>
+
+    <!-- T3 segment: 2024 -->
+    <rect x="480" y="60" width="360" height="40" fill="#22D3EE" rx="3"/>
+    <text x="660" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace"
+          font-size="12" fill="#0A0E13" letter-spacing="1.4">T3 · 252 BARS · POST-CUTOFF</text>
+
+    <!-- date axis -->
+    <g font-family="JetBrains Mono, monospace" font-size="10" fill="#7A8693">
+        <text x="100" y="125" text-anchor="middle">2020-01-02 → 03-31</text>
+        <text x="180" y="125" text-anchor="middle">—</text>
+        <text x="320" y="125" text-anchor="middle">2020-06-01 → 11-30</text>
+        <text x="460" y="125" text-anchor="middle">—</text>
+        <text x="660" y="125" text-anchor="middle">2024-01-02 → 12-31</text>
+    </g>
+
+    <!-- usage labels -->
+    <g font-family="JetBrains Mono, monospace" font-size="11">
+        <text x="100" y="160" text-anchor="middle" fill="#22D3EE">TRAIN</text>
+        <text x="100" y="178" text-anchor="middle" fill="#7A8693">grpo / gepa rollouts</text>
+        <text x="320" y="160" text-anchor="middle" fill="#22D3EE">VALIDATION</text>
+        <text x="320" y="178" text-anchor="middle" fill="#7A8693">eval, early stop</text>
+        <text x="660" y="160" text-anchor="middle" fill="#22D3EE">TEST</text>
+        <text x="660" y="178" text-anchor="middle" fill="#7A8693">held-out, post-cutoff</text>
+    </g>
+
+    <!-- bottom note -->
+    <text x="440" y="220" text-anchor="middle" font-family="IBM Plex Sans, sans-serif"
+          font-size="11" fill="#7A8693" font-style="italic">
+        30-day embargo between adjacent splits prevents boundary leakage.
+    </text>
+</svg>

@@ -1,0 +1,23 @@
+[
+  {
+    "iteration": 0,
+    "run_id": "20260426T035937Z__train-test__zai-org-glm-5-1-together",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T035937Z__train-test__zai-org-glm-5-1-together",
+    "test_score": 0.028311962748780006,
+    "test_cumulative_reward": 74.29450897257126,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6243236048115233,
+    "test_action_counts": {
+      "sandbox_exec": 81,
+      "record_decision": 145,
+      "place_order": 2,
+      "advance_day": 119,
+      "view_portfolio": 88
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.028311962748780006
+    },
+    "prior_run": null
+  }
+]

@@ -1,0 +1,87 @@
+[
+  {
+    "iteration": 0,
+    "run_id": "20260426T025319Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T025319Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "test_score": 0.038763513200253286,
+    "test_cumulative_reward": 75.0472412383665,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6306490860366932,
+    "test_action_counts": {
+      "advance_day": 185,
+      "sandbox_exec": 6,
+      "record_decision": 130,
+      "place_order": 10,
+      "view_portfolio": 17
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.038763513200253286
+    },
+    "prior_run": null
+  },
+  {
+    "iteration": 1,
+    "run_id": "20260426T032611Z__train-test__qwen-qwen3-32b-groq__iter01_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T032611Z__train-test__qwen-qwen3-32b-groq__iter01_reflect",
+    "test_score": 0.06312096428008074,
+    "test_cumulative_reward": 75.9350765099759,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6381098866384529,
+    "test_action_counts": {
+      "advance_day": 186,
+      "record_decision": 137,
+      "place_order": 11,
+      "view_portfolio": 32,
+      "sandbox_exec": 1
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.06312096428008074
+    },
+    "prior_run": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T025319Z__train-test__qwen-qwen3-32b-groq__iter02_reflect"
+  },
+  {
+    "iteration": 2,
+    "run_id": "20260426T035335Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T035335Z__train-test__qwen-qwen3-32b-groq__iter02_reflect",
+    "test_score": 0.06964167228625251,
+    "test_cumulative_reward": 77.06237122235562,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6475829514483665,
+    "test_action_counts": {
+      "record_decision": 142,
+      "view_portfolio": 31,
+      "place_order": 14,
+      "advance_day": 181,
+      "sandbox_exec": 6,
+      "view_episode_metrics": 1
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.06964167228625251
+    },
+    "prior_run": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T032611Z__train-test__qwen-qwen3-32b-groq__iter01_reflect"
+  },
+  {
+    "iteration": 3,
+    "run_id": "20260426T042137Z__train-test__qwen-qwen3-32b-groq__iter03_reflect",
+    "artifacts_root": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T042137Z__train-test__qwen-qwen3-32b-groq__iter03_reflect",
+    "test_score": 0.0989155705255973,
+    "test_cumulative_reward": 78.3439179924528,
+    "test_bars_completed": 119,
+    "test_score_normalized": 0.6583522520374185,
+    "test_action_counts": {
+      "view_portfolio": 31,
+      "advance_day": 191,
+      "record_decision": 132,
+      "sandbox_exec": 10,
+      "place_order": 12
+    },
+    "scores": {
+      "train": 1.0,
+      "test": 0.0989155705255973
+    },
+    "prior_run": "/home/pratham/openenv_hack/R2/trade-bench/artifacts/runs/20260426T035335Z__train-test__qwen-qwen3-32b-groq__iter02_reflect"
+  }
+]

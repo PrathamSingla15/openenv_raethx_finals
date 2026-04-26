@@ -1,0 +1,25 @@
+{
+  "dataset_version": "sample-v2",
+  "task_id": "sample_ep_001",
+  "split": {
+    "name": "train"
+  },
+  "warmup_start": "2019-06-03",
+  "episode_start": "2020-01-02",
+  "episode_end": "2020-03-31",
+  "initial_cash": "100000",
+  "universe_asset_ids": [
+    "tb_sample_liquid",
+    "tb_sample_dead",
+    "tb_sample_rename_old",
+    "tb_sample_rename_new"
+  ],
+  "cost_model_version": "v0",
+  "scorer_version": "v0",
+  "sandbox_image_digest": "sha256:sample",
+  "dependency_lock_digest": "sha256:lock",
+  "regime_labels": {
+    "sample": "synthetic"
+  },
+  "constraint_policy": null
+}

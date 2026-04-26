@@ -1,0 +1,5 @@
+Regime: mixed
+Intended exposure: 0.8
+Uncertainty: high
+Edge summary: Default equal-weight long across the universe.
+Reasoning: Fallback after 3 attempts — model never emitted a parseable record_decision.

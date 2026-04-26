@@ -1,0 +1,5 @@
+Regime: sharpe_weighted_long
+Intended exposure: 0.60
+Uncertainty: medium
+Edge summary: Allocate 60% gross exposure equally to tier_a03 (Sharpe 1.67), tier_a07 (1.67), tier_a01 (0.57), tier_a04 (0.66), tier_a02 (0.56) — these assets combine high Sharpe ratios with low cross-correlation (<0.1). Avoid tier_a08/09/06 due to negative Sharpe or extreme drawdown risk. Rebalance quarterly to maintain weight gaps >2%.
+Reasoning: Selected top Sharpe assets with orthogonal risk profiles (a03,a07 uncorrelated at -0.02). Equal-weighting exploits their low pairwise correlations (<0.1) to reduce portfolio vol. Quarterly rebalancing closes weight gaps >2% to maintain target exposure while minimizing transaction costs.
