@@ -1737,3 +1737,14 @@ footer { display: none !important; }
 .tb-defense-row {
     transition: background-color 200ms ease, border-color 200ms ease;
 }
+
+/* Defensive: never let .tb-reveal hide content. The earlier opacity:0 +
+   blur(8) + translateY(28) initial state meant if motion.js didn't fire
+   before Gradio mounted the tab, the whole landing stayed invisible. Force
+   visible-by-default; .is-in still toggles for the subtle animation but
+   it's a no-op now. */
+.tb-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+}
