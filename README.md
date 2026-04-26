@@ -23,10 +23,18 @@ Meta PyTorch OpenEnv Hackathon (India 2026) finals submission — **Theme 2: (Su
 
 ---
 
-## Links
+## Links (submission deliverables)
 
-- **HF Space (deployed env):** https://huggingface.co/spaces/yobro4619/tradebench
-- **Reflection-loop demo results:** [`RESULTS.md`](RESULTS.md) — full per-iter trajectory, per-bar alpha vs B&H, action mix evolution, reward-component decomposition.
+| | |
+|---|---|
+| HF Space (deployed env) | https://huggingface.co/spaces/yobro4619/tradebench |
+| Code repository | https://github.com/PrathamSingla15/openenv_raethx_finals |
+| Writeup / blog post | [`Blog.md`](Blog.md) (also at `https://huggingface.co/spaces/yobro4619/tradebench/blob/main/Blog.md`) |
+| Training script | [`scripts/run_reflection_loop.py`](scripts/run_reflection_loop.py) — runnable Python entry point. No Colab notebook is needed; reproduction is a single `uv run python scripts/run_reflection_loop.py --iters 5 --rollout-model qwen/qwen3-32b:groq` against any TradeBench env URL. |
+
+Other useful pointers:
+
+- **Reflection-loop demo results (long form):** [`RESULTS.md`](RESULTS.md) — full per-iter trajectory, per-bar alpha vs B&H, action mix evolution, reward-component decomposition.
 - **Plain-language explainer (PDF):** [`docs/tradebench-explainer.pdf`](docs/tradebench-explainer.pdf)
 - **Architecture deep-dive:** [`docs/architecture/event-order.md`](docs/architecture/event-order.md), [`docs/sandbox/security-model.md`](docs/sandbox/security-model.md), [`docs/benchmark/metric-panel.md`](docs/benchmark/metric-panel.md)
 
