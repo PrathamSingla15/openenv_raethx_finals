@@ -246,7 +246,7 @@ GLM started from a more extreme under-trading baseline (2 orders vs Qwen's 4, 81
 ### Run via Docker (mirrors the HF Spaces deployment exactly)
 
 ```bash
-docker build -f server/Dockerfile -t tradebench:latest .
+docker build -t tradebench:latest .
 docker run -p 8000:8000 tradebench:latest
 
 curl http://localhost:8000/health
