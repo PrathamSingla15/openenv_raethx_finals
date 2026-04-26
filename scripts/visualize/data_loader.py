@@ -28,7 +28,8 @@ MODEL_RUNS: dict[str, list[tuple[int, str, str]]] = {
     "zai-glm-5.1-together": [
         (0, "20260426T035937Z__train-test__zai-org-glm-5-1-together", "baseline"),
         (1, "20260426T044349Z__train-test__zai-org-glm-5-1-together__iter01_reflect", "iter1"),
-        # iters 2..5 appended once GLM reflection completes — see Phase 8 in plan.
+        (2, "20260426T052859Z__train-test__zai-org-glm-5-1-together__iter02_reflect", "iter2"),
+        (3, "20260426T070351Z__train-test__zai-org-glm-5-1-together__iter03_reflect", "iter3"),
     ],
 }
 

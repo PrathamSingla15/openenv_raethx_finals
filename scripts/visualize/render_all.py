@@ -11,7 +11,6 @@ from pathlib import Path
 from scripts.visualize import (
     viz_a_reward,
     viz_b_reward_roi,
-    viz_c_prompts,
     viz_d_bar_alpha,
     viz_e_action_mix,
     viz_f_reward_components,
@@ -20,26 +19,33 @@ from scripts.visualize.data_loader import PROJECT_ROOT
 
 OUT_DIR = PROJECT_ROOT / "docs" / "figures"
 
-_TARGETS = [
-    (viz_a_reward.render, "reward_evolution.png"),
-    (viz_b_reward_roi.render, "reward_roi_combined.png"),
-    (viz_c_prompts.render, "prompt_evolution.png"),
-    (viz_d_bar_alpha.render, "bar_alpha_vs_bnh.png"),
-    (viz_e_action_mix.render, "action_mix_evolution.png"),
-    (viz_f_reward_components.render, "reward_components_baseline_vs_final.png"),
-]
+QWEN = "qwen-qwen3-32b-groq"
+GLM = "zai-glm-5.1-together"
 
 
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for render_fn, fname in _TARGETS:
-        out = OUT_DIR / fname
-        try:
-            render_fn(out)
-            print(f"  OK  {fname}")
-        except Exception as e:
-            print(f"  FAIL {fname}: {e!r}")
-            raise
+
+    # Combined headline reward-evolution chart (both models on one axes).
+    viz_a_reward.render(OUT_DIR / "reward_evolution.png")
+    print("  OK  reward_evolution.png  (both models)")
+
+    # Per-model plots: Qwen (un-suffixed) + GLM (_glm suffix).
+    for model_id, suffix in [(QWEN, ""), (GLM, "_glm")]:
+        viz_b_reward_roi.render(OUT_DIR / f"reward_roi_combined{suffix}.png", model_id=model_id)
+        print(f"  OK  reward_roi_combined{suffix}.png")
+
+        viz_d_bar_alpha.render(OUT_DIR / f"bar_alpha_vs_bnh{suffix}.png", model_id=model_id)
+        print(f"  OK  bar_alpha_vs_bnh{suffix}.png")
+
+        viz_e_action_mix.render(OUT_DIR / f"action_mix_evolution{suffix}.png", model_id=model_id)
+        print(f"  OK  action_mix_evolution{suffix}.png")
+
+        viz_f_reward_components.render(
+            OUT_DIR / f"reward_components_baseline_vs_final{suffix}.png", model_id=model_id,
+        )
+        print(f"  OK  reward_components_baseline_vs_final{suffix}.png")
+
     print(f"\nAll figures written to {OUT_DIR}")
     return 0
 
