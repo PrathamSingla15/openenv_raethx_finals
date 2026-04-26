@@ -42,9 +42,7 @@ The claim is narrower than "prompts matter." Frontier LLMs already carry the pla
 
 ## 2. Why long-horizon trading was the right test
 
-Frontier LLMs have measurable failure modes on long-horizon decision tasks. They reason well about a single trade in isolation, but not across hundreds of sequential decisions where past actions reshape the future state distribution. The skill that breaks down is pacing: when to act, when to abstain, how to size against what you hold, how to avoid drifting into an unintended regime.
-
-Finance is the cleanest place to measure this. The reward function has no taste, no narrative, no goalpost drift: a portfolio either compounded or it did not, and the path that got it there is on the ledger. Sequential mistakes show up as sequential dollars lost. There is nowhere to hide. That is exactly the property a long-horizon RL environment needs and the property most agentic benchmarks lack.
+Finance is the cleanest place to measure long-horizon execution discipline. The reward function has no taste, no narrative, no goalpost drift: a portfolio either compounded or it did not, and the path that got it there is on the ledger. Sequential mistakes show up as sequential dollars lost. There is nowhere to hide. That is exactly the property a long-horizon RL environment needs and the property most agentic benchmarks lack.
 
 We costed the textbook fix (RL via GRPO/PPO) against the actual hackathon budget: it would have wanted ~750 hours of GLM-5.1 rollouts against our 36-hour window. Section 5 has the table.
 
@@ -56,7 +54,7 @@ The research question was narrow and falsifiable: does trajectory-level reflecti
 
 ## 3. TradeBench in one section
 
-Long-horizon execution discipline has historically been left to whatever the base model happens to be calibrated for. TradeBench turns it into an optimizable surface: a per-bar reward in [0, 1] decomposed across seven trader-recognizable components, server-enforced sequential structure that makes "abstain" a first-class action, and a deterministic grader that produces final cumulative log-wealth, max drawdown, Sharpe, Sortino, and an avoided-ruin boolean from the ledger event log. Fully reproducible, no LLM judge.
+TradeBench has a per-bar reward in [0, 1] decomposed across seven trader-recognizable components, server-enforced sequential structure that makes "abstain" a first-class action, and a deterministic grader that produces final cumulative log-wealth, max drawdown, Sharpe, Sortino, and an avoided-ruin boolean from the ledger event log. Fully reproducible, no LLM judge.
 
 **Five-step daily loop, eleven tools, server-enforced commit gate:**
 
